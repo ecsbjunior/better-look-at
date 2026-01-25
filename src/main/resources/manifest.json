@@ -1,0 +1,17 @@
+{
+  "Group": "${group}",
+  "Name": "${name}",
+  "Version": "${version}",
+  "Authors": [
+    {
+      "Name": "${author}"
+    }
+  ],
+  "Main": "${group}.${name}",
+  "Dependencies": {
+    "Hytale:AssetModule": "*",
+    "Hytale:EntityModule": "*"
+  },
+  "ServerVersion": "*",
+  "IncludesAssetPack": true
+}

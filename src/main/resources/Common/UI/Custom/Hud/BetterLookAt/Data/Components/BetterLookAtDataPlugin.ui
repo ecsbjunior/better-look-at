@@ -1,0 +1,8 @@
+Group #DataPluginContainer {
+    LayoutMode: Left;
+
+    Label #DataPlugin {
+        Text: "";
+        Style: (FontSize: 18);
+    }
+}

@@ -1,0 +1,4 @@
+Group #DataRecommendedToolContainer {
+    LayoutMode: Left;
+    Padding: (Top: 6);
+}
