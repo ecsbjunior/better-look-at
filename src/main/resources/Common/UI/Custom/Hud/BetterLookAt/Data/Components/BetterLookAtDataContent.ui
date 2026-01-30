@@ -1,5 +1,0 @@
-Group #DataContent {
-    LayoutMode: Top;
-    Anchor: (Left: -4);
-    Padding: (Vertical: 8);
-}

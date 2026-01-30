@@ -1,9 +1,0 @@
-Group #DataMetadataItemContainer {
-    LayoutMode: Left;
-
-    Label #DataMetadataItem {
-        Text: "";
-        Anchor: (Height: 18);
-        Style: (FontSize: 16);
-    }
-}

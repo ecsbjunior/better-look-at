@@ -12,20 +12,20 @@ public class BetterLookAtEntity {
         this.id = id;
     }
 
-    public <T extends IBetterLookAtComponent> Optional<T> getComponent(Class<T> component) {
-        return this.components.stream().filter(component::isInstance).map(component::cast).findFirst();
+    public List<IBetterLookAtComponent> getComponents() {
+        return this.components;
     }
 
-    public <T extends IBetterLookAtComponent> List<T> getComponents(Class<T> component) {
-        return this.components.stream().filter(component::isInstance).map(component::cast).toList();
+    public <T extends IBetterLookAtComponent> Optional<T> getComponent(Class<T> component) {
+        return this.components.stream().filter(component::isInstance).map(component::cast).findFirst();
     }
 
     public void addComponent(IBetterLookAtComponent component) {
         this.components.add(component);
     }
 
-    public <T extends IBetterLookAtComponent> void removeComponent(Class<T> component) {
-        this.components.removeIf(component::isInstance);
+    public <T extends IBetterLookAtComponent> boolean removeComponent(Class<T> component) {
+        return this.components.removeIf(component::isInstance);
     }
 
     public int getId() {

@@ -4,4 +4,4 @@ import com.junior.evandro.ecs.IBetterLookAtComponent;
 
 import javax.annotation.Nonnull;
 
-public record BetterLookAtRecommendedToolComponent(@Nonnull String value) implements IBetterLookAtComponent { }
+public record BetterLookAtEntityIconComponent(@Nonnull String value) implements IBetterLookAtComponent { }

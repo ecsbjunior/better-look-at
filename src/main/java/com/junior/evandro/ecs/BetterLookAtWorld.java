@@ -1,7 +1,6 @@
 package com.junior.evandro.ecs;
 
-import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import javax.annotation.Nonnull;
@@ -16,9 +15,9 @@ public class BetterLookAtWorld {
     @Nonnull
     private final List<IBetterLookAtSystem> systems = new ArrayList<>();
 
-    public void execute(Ref<EntityStore> storeRef) {
+    public void execute(int index, @Nonnull ArchetypeChunk<EntityStore> archetypeChunk) {
         for (var system : this.systems) {
-            system.execute(storeRef, this);
+            system.execute(index, archetypeChunk, this);
         }
     }
 
@@ -31,18 +30,8 @@ public class BetterLookAtWorld {
         this.entities.get(entityId).addComponent(component);
     }
 
-    public void unregisterComponent(int entityId, IBetterLookAtComponent component) {
-        this.entities.get(entityId).removeComponent(component.getClass());
-    }
-
-    public void registerComponents(int entityId, IBetterLookAtComponent... components) {
-        for (var component : components) {
-            this.entities.get(entityId).addComponent(component);
-        }
-    }
-
-    public @Nonnull List<BetterLookAtEntity> getEntities() {
-        return this.entities;
+    public <T extends IBetterLookAtComponent> void unregisterComponent(int entityId, Class<T> component) {
+        this.entities.get(entityId).removeComponent(component);
     }
 
     public <T extends BetterLookAtEntity> @Nonnull List<T> getEntities(Class<T> entity) {

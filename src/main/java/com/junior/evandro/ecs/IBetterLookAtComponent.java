@@ -1,4 +1,3 @@
 package com.junior.evandro.ecs;
 
-public interface IBetterLookAtComponent {
-}
+public interface IBetterLookAtComponent { }

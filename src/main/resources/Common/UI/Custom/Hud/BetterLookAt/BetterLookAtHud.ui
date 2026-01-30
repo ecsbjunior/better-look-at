@@ -1,0 +1,139 @@
+$C = "../../Common.ui";
+
+Group #BetterLookAtHud {
+    Anchor: (Left: 10, Top: 12);
+    LayoutMode: Left;
+    Visible: false;
+
+    Group #BetterLookAtData {
+        LayoutMode: TopScrolling;
+
+        $C.@DecoratedContainer {
+            Anchor: (Width: 360);
+
+            #Title {
+                $C.@Title #BetterLookAtDataTitle {
+                    @Text = "";
+                }
+            }
+
+            #Content {
+                Padding: (Horizontal: 16, Top: 8, Bottom: 14);
+
+                Group {
+                    LayoutMode: Left;
+
+                    Group #BetterLookAtDataIconContainer {
+                        Anchor: (Width: 48, Height: 48, Top: 0);
+                        Background: "../../Common/BlockSelectorSlotBackground.png";
+
+                        ItemSlot #BetterLookAtDataBlockIcon {
+                            Visible: false;
+                            ShowQuantity: false;
+                            ShowQualityBackground: true;
+                        }
+
+                        AssetImage #BetterLookAtDataEntityIcon {
+                            Visible: false;
+                        }
+                    }
+
+                    Group {
+                        Anchor: (Top: 1, Left: 6);
+                        LayoutMode: Top;
+
+                        Group #BetterLookAtDataHealthContainer {
+                            Background: "Assets/ProgressBarBg.png";
+                            Anchor: (Width: 274, Height: 16);
+
+                            ProgressBar #BetterLookAtDataHealthProgressBar {
+                                BarTexturePath: "Assets/HealthBarFill.png";
+                                EffectTexturePath: "Assets/ProgressBarTipOfTheBar.png";
+                            }
+
+                            ProgressBar #BetterLookAtDataHealthProgressBarTexture {
+                                BarTexturePath: "Assets/ProgressBarTexture.png";
+                            }
+                        }
+
+                        Group #BetterLookAtDataProcessingBenchStateContainer {
+                            Background: "Assets/ProgressBarBg.png";
+                            Anchor: (Width: 274, Height: 16);
+
+                            ProgressBar #BetterLookAtDataProcessingBenchStateProgressBar {
+                                BarTexturePath: "Assets/BenchProgressingStateBarFill.png";
+                                EffectTexturePath: "Assets/ProgressBarTipOfTheBar.png";
+                            }
+
+                            ProgressBar #BetterLookAtDataProcessingBenchStateProgressBarTexture {
+                                BarTexturePath: "Assets/ProgressBarTexture.png";
+                            }
+                        }
+
+                        Group #BetterLookAtDataMetadataContainer {
+                            LayoutMode: Top;
+                            Anchor: (Top: 5);
+
+                            Label #BetterLookAtDataFuel {
+                                Anchor: (Vertical: -2);
+                                Style: (FontSize: 14);
+                            }
+
+                            Label #BetterLookAtDataConsumable {
+                                Anchor: (Vertical: -2);
+                                Style: (FontSize: 14);
+                            }
+
+                            Label #BetterLookAtDataInvulnerable {
+                                Anchor: (Vertical: -2);
+                                Style: (FontSize: 14);
+                            }
+                        }
+
+                        Group #BetterLookAtDataRecommendedToolsContainer {
+                            LayoutMode: Left;
+
+                            ItemGrid #BetterLookAtDataRecommendedTools {
+                                Style: (SlotSize: 22, SlotIconSize: 22, SlotSpacing: 0, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+                                SlotsPerRow: 8;
+                                RenderItemQualityBackground: true;
+                            }
+                        }
+
+                        Group #BetterLookAtDataPluginContainer {
+                            Label #BetterLookAtDataPlugin {
+                                Anchor: (Top: -4, Bottom: -4);
+                                Style: (TextColor: #517a91, FontSize: 16, RenderBold: true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Group #BetterLookAtDataChestContainer {
+            Background: (TexturePath: "../../Common/ContainerFullPatch.png", Border: 20);
+            Anchor: (Width: 360, Top: 10);
+            Padding: (Horizontal: 16, Vertical: 16);
+            LayoutMode: Left;
+
+            ItemGrid #BetterLookAtDataChest {
+                Style: (SlotSize: 28, SlotIconSize: 28, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+                SlotsPerRow: 11;
+                RenderItemQualityBackground: true;
+            }
+
+            //            ItemGrid #BetterLookAtDataChest {
+            //                Style: (SlotSize: 44, SlotIconSize: 44, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+            //                SlotsPerRow: 7;
+            //                RenderItemQualityBackground: true;
+            //            }
+
+            //            ItemGrid #BetterLookAtDataChest {
+            //                Style: (SlotSize: 63, SlotIconSize: 63, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+            //                SlotsPerRow: 5;
+            //                RenderItemQualityBackground: true;
+            //            }
+        }
+    }
+}
