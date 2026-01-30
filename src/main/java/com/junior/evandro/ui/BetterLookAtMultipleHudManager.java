@@ -42,7 +42,7 @@ public class BetterLookAtMultipleHudManager extends BetterLookAtHudManager {
     }
 
     public static class MultipleHud {
-        private static final String MULTIPLE_HUD_CLASS_NAME = "com.buuz135.mhud.MultipleHUD";
+        public static final String MULTIPLE_HUD_CLASS_NAME = "com.buuz135.mhud.MultipleHUD";
         private static final String MULTIPLE_HUD_GET_INSTANCE_METHOD_NAME = "getInstance";
         private static final String MULTIPLE_HUD_SET_CUSTOM_HUD_METHOD_NAME = "setCustomHud";
         private static final String MULTIPLE_HUD_HIDE_CUSTOM_HUD_METHOD_NAME = "hideCustomHud";

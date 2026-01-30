@@ -1,8 +1,8 @@
 $C = "../../Common.ui";
 
 Group #BetterLookAtHud {
-    Anchor: (Left: 10, Top: 12);
-    LayoutMode: Left;
+    Anchor: (Width: 360, Top: 12, Left: 30);
+    LayoutMode: Top;
     Visible: false;
 
     Group #BetterLookAtData {

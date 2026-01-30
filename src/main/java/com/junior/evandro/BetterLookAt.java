@@ -3,6 +3,9 @@ package com.junior.evandro;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.util.Config;
+import com.junior.evandro.commands.BetterLookAtCommand;
+import com.junior.evandro.config.BetterLookAtConfig;
 import com.junior.evandro.ecs.BetterLookAtWorld;
 import com.junior.evandro.ecs.data.BetterLookAtDataSystem;
 import com.junior.evandro.ecs.data.entities.BetterLookAtDataEntity;
@@ -21,18 +24,26 @@ public class BetterLookAt extends JavaPlugin {
     public static BetterLookAtHudManager hudManager = new BetterLookAtVanillaHudManager();
     public static BetterLookAtWorld WORLD = new BetterLookAtWorld();
     public static int ENTITY_ID = BetterLookAt.WORLD.registerEntity(BetterLookAtDataEntity::new);
+    public static Config<BetterLookAtConfig> CONFIG;
 
     public BetterLookAt(@Nonnull JavaPluginInit init) {
         super(init);
+
+        BetterLookAt.CONFIG = this.withConfig(BetterLookAt.NAME, BetterLookAtConfig.CODEC);
     }
 
     @Override
     protected void setup() {
         super.setup();
 
+        BetterLookAt.CONFIG.save();
+
         BetterLookAt.WORLD.registerSystem(new BetterLookAtDataSystem());
 
+        this.getCommandRegistry().registerCommand(new BetterLookAtCommand());
         this.getEntityStoreRegistry().registerSystem(new BetterLookAtPlayerLookAtTickingSystem());
+
+        BetterLookAt.LOGGER.atInfo().log("The plugin has been successfully setup");
     }
 
     @Override
@@ -44,6 +55,11 @@ public class BetterLookAt extends JavaPlugin {
 
         if (BetterLookAtMultipleHudManager.MultipleHud.isAvailable()) {
             BetterLookAt.hudManager = new BetterLookAtMultipleHudManager();
+            BetterLookAt.LOGGER.atInfo().log(
+                "The HUD MANAGER has been configured with %s",
+                BetterLookAtMultipleHudManager.MultipleHud.MULTIPLE_HUD_CLASS_NAME);
         }
+
+        BetterLookAt.LOGGER.atInfo().log("The plugin has been successfully started");
     }
 }

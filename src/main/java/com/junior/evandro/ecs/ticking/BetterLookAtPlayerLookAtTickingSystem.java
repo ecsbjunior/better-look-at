@@ -11,6 +11,7 @@ import com.junior.evandro.mappers.BetterLookAtEntityMapper;
 import com.junior.evandro.ecs.IBetterLookAtComponent;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BetterLookAtPlayerLookAtTickingSystem extends EntityTickingSystem<EntityStore> {
@@ -31,12 +32,14 @@ public class BetterLookAtPlayerLookAtTickingSystem extends EntityTickingSystem<E
         @Nonnull Store<EntityStore> store,
         @Nonnull CommandBuffer<EntityStore> commandBuffer
     ) {
-        List<IBetterLookAtComponent> targetDataComponents;
+        List<IBetterLookAtComponent> targetDataComponents = new ArrayList<>();
 
-        targetDataComponents = BetterLookAtEntityMapper.from(index, archetypeChunk, commandBuffer);
+        if (BetterLookAt.CONFIG.get().getEnabled()) {
+            targetDataComponents = BetterLookAtEntityMapper.from(index, archetypeChunk, commandBuffer);
 
-        if (targetDataComponents.isEmpty()) {
-            targetDataComponents = BetterLookAtBlockMapper.from(index, archetypeChunk, commandBuffer);
+            if (targetDataComponents.isEmpty()) {
+                targetDataComponents = BetterLookAtBlockMapper.from(index, archetypeChunk, commandBuffer);
+            }
         }
 
         for (var targetDataComponent : targetDataComponents) {

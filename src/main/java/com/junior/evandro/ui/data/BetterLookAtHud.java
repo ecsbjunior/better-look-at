@@ -4,11 +4,12 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.junior.evandro.BetterLookAt;
+import com.junior.evandro.config.BetterLookAtPosition;
 import com.junior.evandro.ecs.data.components.*;
 import com.junior.evandro.ui.BetterLookAtCustomHud;
 import com.junior.evandro.utils.BetterLookAtMessage;
 import com.junior.evandro.ui.data.records.BetterLookAtDataRecord;
-import com.junior.evandro.utils.BetterLookAtAnchor;
+import com.junior.evandro.ui.core.BetterLookAtAnchor;
 
 import javax.annotation.Nonnull;
 
@@ -92,7 +93,15 @@ public class BetterLookAtHud extends BetterLookAtCustomHud {
     }
 
     private void showRoot() {
+        var position = BetterLookAt.CONFIG.get().getPosition();
+        var anchorBuilder = new BetterLookAtAnchor.Builder().withWidth(360);
+        if (position.equals(BetterLookAtPosition.TOP_LEFT)) anchorBuilder.withTop(12).withLeft(30);
+        else if (position.equals(BetterLookAtPosition.TOP_RIGHT)) anchorBuilder.withTop(12).withRight(-10);
+        else if (position.equals(BetterLookAtPosition.TOP_CENTER)) anchorBuilder.withTop(40).withLeft(0).withRight(-40);
+        else if (position.equals(BetterLookAtPosition.BOTTOM_LEFT)) anchorBuilder.withBottom(12).withLeft(30);
+        else if (position.equals(BetterLookAtPosition.BOTTOM_RIGHT)) anchorBuilder.withBottom(12).withRight(-10);
         this.uiCommandBuilder.set("%s.Visible".formatted(this.ROOT_CONTAINER), true);
+        this.uiCommandBuilder.setObject("%s.Anchor".formatted(this.ROOT_CONTAINER), anchorBuilder.build());
     }
 
     private void hiddenRoot() {

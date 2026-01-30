@@ -1,4 +1,4 @@
-package com.junior.evandro.utils;
+package com.junior.evandro.ui.core;
 
 public class BetterLookAtPadding {
     public int top = 0;

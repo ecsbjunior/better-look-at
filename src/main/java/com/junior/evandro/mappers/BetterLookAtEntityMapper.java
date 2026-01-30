@@ -92,8 +92,14 @@ public class BetterLookAtEntityMapper {
             return;
         }
 
-        targetDataComponents.add(
-                new BetterLookAtHealthComponent(targetEntityHealthStat.get(), entity.getInitialMaxHealth()));
+        var health = targetEntityHealthStat.get();
+        var maxHealth = entity.getInitialMaxHealth();
+
+        if (maxHealth < health || maxHealth == 0) {
+            return;
+        }
+
+        targetDataComponents.add(new BetterLookAtHealthComponent(health, maxHealth));
     }
 
     private static void handleInvulnerable(@Nonnull Role entity, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {

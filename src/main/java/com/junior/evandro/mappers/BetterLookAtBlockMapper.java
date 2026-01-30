@@ -168,8 +168,13 @@ public class BetterLookAtBlockMapper {
         }
 
         var health = blockHealthComponent.getBlockHealth(targetBlockPosition);
+        var maxHealth = 1;
 
-        targetDataComponents.add(new BetterLookAtHealthComponent(health, 1));
+        if (health == maxHealth || maxHealth < health) {
+            return;
+        }
+
+        targetDataComponents.add(new BetterLookAtHealthComponent(health, maxHealth));
     }
 
     private static void handlePlugin(@Nonnull Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
