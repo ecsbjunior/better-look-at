@@ -15,6 +15,7 @@ import com.hypixel.hytale.server.core.universe.world.meta.state.ItemContainerSta
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import com.hypixel.hytale.server.core.util.TargetUtil;
+import com.junior.evandro.BetterLookAt;
 import com.junior.evandro.ecs.IBetterLookAtComponent;
 import com.junior.evandro.ecs.data.components.*;
 import com.junior.evandro.ecs.ticking.BetterLookAtPlayerLookAtTickingSystem;
@@ -110,6 +111,10 @@ public class BetterLookAtBlockMapper {
         @SuppressWarnings("removal") BlockState targetBlockState,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
+        if (!BetterLookAt.CONFIG.get().getShowChestContent()) {
+            return;
+        }
+
         if (targetBlockState instanceof ItemContainerState itemContainerState) {
             var chest = itemContainerState.getItemContainer();
 

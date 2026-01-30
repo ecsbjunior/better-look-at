@@ -8,11 +8,13 @@ import com.hypixel.hytale.codec.codecs.EnumCodec;
 
 public class BetterLookAtConfig {
     private boolean enabled = true;
+    private boolean showChestContent = true;
     private BetterLookAtPosition position = BetterLookAtPosition.TOP_LEFT;
 
     public static final BuilderCodec<BetterLookAtConfig> CODEC = BuilderCodec
         .builder(BetterLookAtConfig.class, BetterLookAtConfig::new)
         .append(EnabledField.create(), EnabledField::setter, EnabledField::getter).add()
+        .append(ShowChestContentField.create(), ShowChestContentField::setter, ShowChestContentField::getter).add()
         .append(PositionField.create(), PositionField::setter, PositionField::getter).add()
         .build();
 
@@ -22,6 +24,14 @@ public class BetterLookAtConfig {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean getShowChestContent() {
+        return this.showChestContent;
+    }
+
+    public void setShowChestContent(boolean showChestContent) {
+        this.showChestContent = showChestContent;
     }
 
     public BetterLookAtPosition getPosition() {
@@ -45,6 +55,22 @@ public class BetterLookAtConfig {
 
         private static void setter(BetterLookAtConfig config, Boolean value, ExtraInfo extra) {
             config.enabled = value;
+        }
+    }
+
+    private static class ShowChestContentField {
+        public static String FIELD_NAME = "ShowChestContent";
+
+        private static KeyedCodec<Boolean> create() {
+            return new KeyedCodec<>(FIELD_NAME, Codec.BOOLEAN);
+        }
+
+        private static boolean getter(BetterLookAtConfig config, ExtraInfo extra) {
+            return config.showChestContent;
+        }
+
+        private static void setter(BetterLookAtConfig config, Boolean value, ExtraInfo extra) {
+            config.showChestContent = value;
         }
     }
 

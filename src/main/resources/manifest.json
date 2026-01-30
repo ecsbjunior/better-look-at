@@ -2,16 +2,24 @@
   "Group": "${group}",
   "Name": "${name}",
   "Version": "${version}",
+  "Description": "Better Look At is a Hytale mod that provides a clean, informative, and real-time HUD when you look at blocks, or entities in the world.",
   "Authors": [
     {
-      "Name": "${author}"
+      "Name": "${author}",
+      "Email": "",
+      "Url": ""
     }
   ],
+  "Website": "",
   "Main": "${group}.${name}",
   "Dependencies": {
     "Hytale:AssetModule": "*",
     "Hytale:EntityModule": "*"
   },
+  "OptionalDependencies": {
+
+  },
   "ServerVersion": "*",
-  "IncludesAssetPack": true
+  "IncludesAssetPack": true,
+  "DisabledByDefault": false
 }

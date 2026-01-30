@@ -16,12 +16,14 @@ import java.util.concurrent.CompletableFuture;
 
 public class BetterLookAtCommand extends AbstractAsyncCommand {
     private final OptionalArg<Boolean> enabledArg;
+    private final OptionalArg<Boolean> showChestArg;
     private final OptionalArg<String> positionArg;
 
     public BetterLookAtCommand() {
         super("betterlookat", "You can configure BetterLookAt with this command");
 
         this.enabledArg = this.withOptionalArg("enabled", "true, false", ArgTypes.BOOLEAN);
+        this.showChestArg = this.withOptionalArg("showchest", "true, false", ArgTypes.BOOLEAN);
         this.positionArg = this.withOptionalArg("position",
             "top-left, top-center, top-right, bottom-left, bottom-right", ArgTypes.STRING);
 
@@ -48,6 +50,12 @@ public class BetterLookAtCommand extends AbstractAsyncCommand {
 
                 if (enabledArgumentValue != null) {
                     config.setEnabled(enabledArgumentValue);
+                }
+
+                var showChestArgumentValue = this.showChestArg.get(context);
+
+                if (showChestArgumentValue != null) {
+                    config.setShowChestContent(showChestArgumentValue);
                 }
 
                 var positionArgumentValue = this.positionArg.get(context);
