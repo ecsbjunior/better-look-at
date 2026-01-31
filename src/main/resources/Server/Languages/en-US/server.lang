@@ -1,0 +1,9 @@
+BetterLookAt.no=No
+BetterLookAt.yes=Yes
+
+BetterLookAt.fuel=Fuel
+BetterLookAt.consumable=Consumable
+BetterLookAt.invulnerable=Invulnerable
+
+BetterLookAt.invalidArgumentValue=The {argument} argument value ({value}) is not valid
+BetterLookAt.onlyPlayersCanUseThisCommand=Only players can use {command} commands

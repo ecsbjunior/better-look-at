@@ -1,6 +1,7 @@
-package com.junior.evandro.utils;
+package com.junior.evandro.messages;
 
 import com.hypixel.hytale.server.core.Message;
+import com.junior.evandro.utils.BetterLookAtColor;
 
 public class BetterLookAtMessage {
     public static Message showIf(Message message, boolean value) {
@@ -21,7 +22,15 @@ public class BetterLookAtMessage {
 
     public static Message toMessage(boolean value) {
         return !value ?
-            Message.raw("No").color(BetterLookAtColor.DANGER).bold(true) :
-            Message.raw("Yes").color(BetterLookAtColor.SUCCESS).bold(true);
+            BetterLookAtI18n.no().color(BetterLookAtColor.DANGER).bold(true) :
+            BetterLookAtI18n.yes().color(BetterLookAtColor.SUCCESS).bold(true);
+    }
+
+    public static Message colon() {
+        return Message.raw(":");
+    }
+
+    public static Message space() {
+        return Message.raw(" ");
     }
 }

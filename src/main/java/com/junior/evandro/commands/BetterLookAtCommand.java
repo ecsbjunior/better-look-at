@@ -1,7 +1,6 @@
 package com.junior.evandro.commands;
 
 import com.hypixel.hytale.protocol.GameMode;
-import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
@@ -9,6 +8,7 @@ import com.hypixel.hytale.server.core.command.system.basecommands.AbstractAsyncC
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.junior.evandro.BetterLookAt;
 import com.junior.evandro.config.BetterLookAtPosition;
+import com.junior.evandro.messages.BetterLookAtI18n;
 import com.junior.evandro.utils.BetterLookAtColor;
 
 import javax.annotation.Nonnull;
@@ -71,11 +71,10 @@ public class BetterLookAtCommand extends AbstractAsyncCommand {
                     };
 
                     if (position == null) {
-                        var better = Message.raw("[BetterLookAt]: ").bold(true);
-                        var prefix = Message.raw("The position argument value");
-                        var value = Message.raw(" (%s) ".formatted(positionArgumentValue)).bold(true);
-                        var suffix = Message.raw("is not valid");
-                        context.sendMessage(Message.join(better, prefix, value, suffix).color(BetterLookAtColor.DANGER));
+                        context.sendMessage(
+                            BetterLookAtI18n
+                                .invalidArgumentValue("position", positionArgumentValue)
+                                .color(BetterLookAtColor.DANGER));
                     } else {
                         config.setPosition(position);
                     }
@@ -84,8 +83,7 @@ public class BetterLookAtCommand extends AbstractAsyncCommand {
                 BetterLookAt.CONFIG.save();
             }, world);
         } else {
-            context.sendMessage(
-                Message.raw("Only players can use BetterLookAt commands").color(BetterLookAtColor.YELLOW));
+            context.sendMessage(BetterLookAtI18n.onlyPlayersCanUseThisCommand(BetterLookAt.NAME));
         }
 
         return CompletableFuture.completedFuture(null);

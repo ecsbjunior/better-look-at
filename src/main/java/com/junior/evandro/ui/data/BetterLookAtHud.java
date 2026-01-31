@@ -6,8 +6,8 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.junior.evandro.BetterLookAt;
 import com.junior.evandro.config.BetterLookAtPosition;
 import com.junior.evandro.ecs.data.components.*;
+import com.junior.evandro.messages.BetterLookAtI18n;
 import com.junior.evandro.ui.BetterLookAtCustomHud;
-import com.junior.evandro.utils.BetterLookAtMessage;
 import com.junior.evandro.ui.data.records.BetterLookAtDataRecord;
 import com.junior.evandro.ui.core.BetterLookAtAnchor;
 
@@ -199,15 +199,9 @@ public class BetterLookAtHud extends BetterLookAtCustomHud {
     }
 
     private void showFuel(BetterLookAtFuelComponent fuel) {
-        var isFuel = fuel.value() > 1;
-        var fuelMessage = Message.raw("Fuel: ");
-        var isFuelMessage = BetterLookAtMessage.toMessage(isFuel);
-        var fuelQualityMessage = BetterLookAtMessage.showIf(
-            BetterLookAtMessage.wrapParentheses(BetterLookAtMessage.toMessage(fuel.value())), isFuel);
         this.showMetadata();
         this.uiCommandBuilder.set("%s.Visible".formatted(this.DATA_FUEL_SELECTOR), true);
-        this.uiCommandBuilder.set("%s.TextSpans".formatted(this.DATA_FUEL_SELECTOR),
-            Message.join(fuelMessage, isFuelMessage, fuelQualityMessage));
+        this.uiCommandBuilder.set("%s.TextSpans".formatted(this.DATA_FUEL_SELECTOR), BetterLookAtI18n.fuel(fuel.value()));
     }
 
     private void hiddenFuel() {
@@ -215,12 +209,10 @@ public class BetterLookAtHud extends BetterLookAtCustomHud {
     }
 
     private void showConsumable(BetterLookAtConsumableComponent consumable) {
-        var consumableMessage = Message.raw("Consumable: ");
-        var isConsumableMessage = BetterLookAtMessage.toMessage(consumable.value());
         this.showMetadata();
         this.uiCommandBuilder.set("%s.Visible".formatted(this.DATA_CONSUMABLE_SELECTOR), true);
-        this.uiCommandBuilder.set("%s.TextSpans".formatted(this.DATA_CONSUMABLE_SELECTOR),
-            Message.join(consumableMessage, isConsumableMessage));
+        this.uiCommandBuilder.set(
+            "%s.TextSpans".formatted(this.DATA_CONSUMABLE_SELECTOR), BetterLookAtI18n.consumable(consumable.value()));
     }
 
     private void hiddenConsumable() {
@@ -228,12 +220,10 @@ public class BetterLookAtHud extends BetterLookAtCustomHud {
     }
 
     private void showInvulnerable(BetterLookAtInvulnerableComponent invulnerable) {
-        var invulnerableMessage = Message.raw("Invulnerable: ");
-        var isInvulnerableMessage = BetterLookAtMessage.toMessage(invulnerable.value());
         this.showMetadata();
         this.uiCommandBuilder.set("%s.Visible".formatted(this.DATA_INVULNERABLE_SELECTOR), true);
-        this.uiCommandBuilder.set("%s.TextSpans".formatted(this.DATA_INVULNERABLE_SELECTOR),
-            Message.join(invulnerableMessage, isInvulnerableMessage));
+        this.uiCommandBuilder.set(
+            "%s.TextSpans".formatted(this.DATA_INVULNERABLE_SELECTOR), BetterLookAtI18n.invulnerable(invulnerable.value()));
     }
 
     private void hiddenInvulnerable() {
