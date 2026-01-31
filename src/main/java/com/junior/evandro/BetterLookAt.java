@@ -10,21 +10,20 @@ import com.junior.evandro.ecs.BetterLookAtWorld;
 import com.junior.evandro.ecs.data.BetterLookAtDataSystem;
 import com.junior.evandro.ecs.data.entities.BetterLookAtDataEntity;
 import com.junior.evandro.ecs.ticking.BetterLookAtPlayerLookAtTickingSystem;
-import com.junior.evandro.ui.BetterLookAtMultipleHudManager;
 import com.junior.evandro.utils.BetterLookAtBlockUtils;
 import com.junior.evandro.utils.BetterLookAtItemUtils;
 import com.junior.evandro.ui.BetterLookAtHudManager;
-import com.junior.evandro.ui.BetterLookAtVanillaHudManager;
 
 import javax.annotation.Nonnull;
 
 public class BetterLookAt extends JavaPlugin {
     public static final String NAME = "BetterLookAt";
     public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
-    public static BetterLookAtHudManager hudManager = new BetterLookAtVanillaHudManager();
-    public static BetterLookAtWorld WORLD = new BetterLookAtWorld();
-    public static int ENTITY_ID = BetterLookAt.WORLD.registerEntity(BetterLookAtDataEntity::new);
+
+    public static int ENTITY_ID;
+    public static BetterLookAtWorld WORLD;
     public static Config<BetterLookAtConfig> CONFIG;
+    public static BetterLookAtHudManager HUD_MANAGER;
 
     public BetterLookAt(@Nonnull JavaPluginInit init) {
         super(init);
@@ -38,7 +37,10 @@ public class BetterLookAt extends JavaPlugin {
 
         BetterLookAt.CONFIG.save();
 
+        BetterLookAt.WORLD = new BetterLookAtWorld();
         BetterLookAt.WORLD.registerSystem(new BetterLookAtDataSystem());
+
+        BetterLookAt.ENTITY_ID = BetterLookAt.WORLD.registerEntity(BetterLookAtDataEntity::new);
 
         this.getCommandRegistry().registerCommand(new BetterLookAtCommand());
         this.getEntityStoreRegistry().registerSystem(new BetterLookAtPlayerLookAtTickingSystem());
@@ -53,12 +55,7 @@ public class BetterLookAt extends JavaPlugin {
         BetterLookAtItemUtils.init();
         BetterLookAtBlockUtils.init();
 
-        if (BetterLookAtMultipleHudManager.MultipleHud.isAvailable()) {
-            BetterLookAt.hudManager = new BetterLookAtMultipleHudManager();
-            BetterLookAt.LOGGER.atInfo().log(
-                "The HUD MANAGER has been configured with %s",
-                BetterLookAtMultipleHudManager.MultipleHud.MULTIPLE_HUD_CLASS_NAME);
-        }
+        BetterLookAt.HUD_MANAGER = BetterLookAtHudManager.getInstance();
 
         BetterLookAt.LOGGER.atInfo().log("The plugin has been successfully started");
     }

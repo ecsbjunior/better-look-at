@@ -31,7 +31,7 @@ public class BetterLookAtDataSystem implements IBetterLookAtSystem {
 
         for (var dataEntity : betterLookAtWorld.getEntities(BetterLookAtDataEntity.class)) {
             if (dataEntity.getComponents().isEmpty()) {
-                BetterLookAt.hudManager.hidden(player, playerRef);
+                BetterLookAt.HUD_MANAGER.hide(player, playerRef);
                 continue;
             }
 
@@ -49,7 +49,7 @@ public class BetterLookAtDataSystem implements IBetterLookAtSystem {
                 dataEntity.getComponent(BetterLookAtProcessingBenchStateComponent.class)
             );
 
-            BetterLookAt.hudManager.show(player, playerRef, record);
+            BetterLookAt.HUD_MANAGER.show(player, playerRef, record);
         }
     }
 }

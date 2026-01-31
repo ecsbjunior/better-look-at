@@ -6,7 +6,7 @@ import com.hypixel.hytale.server.core.entity.entities.player.hud.CustomUIHud;
 import com.hypixel.hytale.server.core.plugin.PluginManager;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.junior.evandro.BetterLookAt;
-import com.junior.evandro.ui.data.BetterLookAtHud;
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
@@ -17,31 +17,16 @@ public class BetterLookAtMultipleHudManager extends BetterLookAtHudManager {
     }
 
     @Override
-    public void show(@Nonnull Player player, @Nonnull PlayerRef playerRef, Object object) {
-        var hud = this.customHuds.get(playerRef);
-
-        if (hud == null) {
-            hud = new BetterLookAtHud(playerRef);
-            this.customHuds.put(playerRef, hud);
-            MultipleHud.setCustomHud(player, playerRef, "BetterLookAtMultipleHud", hud);
-        }
-
-        hud.render(object);
+    public void showCustomHud(@Nonnull Player player, @Nonnull PlayerRef playerRef, @Nonnull BetterLookAtCustomHud hud) {
+        MultipleHud.setCustomHud(player, playerRef, "BetterLookAtMultipleHud", hud);
     }
 
     @Override
-    public void hidden(@Nonnull Player player, @Nonnull PlayerRef playerRef) {
-        var hud = this.customHuds.get(playerRef);
-
-        if (hud == null) {
-            return;
-        }
-
-        hud.hidden();
-//        MultipleHud.hideCustomHud(player, playerRef, "BetterLookAtMultipleHud");
+    public void hideCustomHud(@NonNullDecl Player player, @NonNullDecl PlayerRef playerRef) {
+        MultipleHud.hideCustomHud(player, playerRef, "BetterLookAtMultipleHud");
     }
 
-    public static class MultipleHud {
+    public static final class MultipleHud {
         public static final String MULTIPLE_HUD_CLASS_NAME = "com.buuz135.mhud.MultipleHUD";
         private static final String MULTIPLE_HUD_GET_INSTANCE_METHOD_NAME = "getInstance";
         private static final String MULTIPLE_HUD_SET_CUSTOM_HUD_METHOD_NAME = "setCustomHud";

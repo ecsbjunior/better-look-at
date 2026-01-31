@@ -2,32 +2,18 @@ package com.junior.evandro.ui;
 
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.junior.evandro.ui.data.BetterLookAtHud;
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nonnull;
 
 public class BetterLookAtVanillaHudManager extends BetterLookAtHudManager {
     @Override
-    public void show(@Nonnull Player player, @Nonnull PlayerRef playerRef, Object object) {
-        var hud = this.customHuds.get(playerRef);
-
-        if (hud == null) {
-            hud = new BetterLookAtHud(playerRef);
-            this.customHuds.put(playerRef, hud);
-            player.getHudManager().setCustomHud(playerRef, hud);
-        }
-
-        hud.render(object);
+    public void showCustomHud(@Nonnull Player player, @Nonnull PlayerRef playerRef, @Nonnull BetterLookAtCustomHud hud) {
+        player.getHudManager().setCustomHud(playerRef, hud);
     }
 
     @Override
-    public void hidden(@Nonnull Player player, @Nonnull PlayerRef playerRef) {
-        var hud = this.customHuds.get(playerRef);
-
-        if (hud == null) {
-            return;
-        }
-
-        hud.hidden();
+    public void hideCustomHud(@NonNullDecl Player player, @NonNullDecl PlayerRef playerRef) {
+        this.showCustomHud(player, playerRef, new BetterLookAtHiddenHud(playerRef));
     }
 }

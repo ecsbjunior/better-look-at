@@ -72,7 +72,7 @@ Group #BetterLookAtHud {
 
                         Group #BetterLookAtDataMetadataContainer {
                             LayoutMode: Top;
-                            Anchor: (Top: 5);
+                            Anchor: (Top: -2);
 
                             Label #BetterLookAtDataFuel {
                                 Anchor: (Vertical: -2);
