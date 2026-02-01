@@ -2,8 +2,12 @@ BetterLookAt.no=Não
 BetterLookAt.yes=Sim
 
 BetterLookAt.fuel=Combustível
+BetterLookAt.benchTier=Nível da Bancada
 BetterLookAt.consumable=Consumível
 BetterLookAt.invulnerable=Invulnerável
+BetterLookAt.benchFuels=COMBUSTÍVEIS
+BetterLookAt.benchInputs=ENTRADAS
+BetterLookAt.benchOutputs=SAÍDAS
 
 BetterLookAt.invalidArgumentValue=O valor do argumento {argument} ({value}) não é válido
 BetterLookAt.onlyPlayersCanUseThisCommand=Somente players podem usar os comandos do {command}

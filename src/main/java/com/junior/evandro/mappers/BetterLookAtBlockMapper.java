@@ -1,5 +1,6 @@
 package com.junior.evandro.mappers;
 
+import com.hypixel.hytale.builtin.crafting.state.BenchState;
 import com.hypixel.hytale.builtin.crafting.state.ProcessingBenchState;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -88,11 +89,13 @@ public class BetterLookAtBlockMapper {
         BetterLookAtBlockMapper.handlePlugin(item, targetDataComponents);
         BetterLookAtBlockMapper.handleRecommendedTools(recommendedTools, targetDataComponents);
         BetterLookAtBlockMapper.handleProcessingBenchState(targetBlockState, targetDataComponents);
+        BetterLookAtBlockMapper.handleBenchContainers(targetBlockState, targetDataComponents);
 
         var dataInteraction = BetterLookAtMovementStateUtil.toDataInteraction(storeRef, commandBuffer);
 
         if (dataInteraction.equals(BetterLookAtDataInteraction.SHOW_DETAILED_DATA)) {
             BetterLookAtBlockMapper.handleFuel(item, targetDataComponents);
+            BetterLookAtBlockMapper.handleBenchTier(targetBlockState, targetDataComponents);
             BetterLookAtBlockMapper.handleConsumable(item, targetDataComponents);
         }
 
@@ -230,6 +233,86 @@ public class BetterLookAtBlockMapper {
             }
 
             targetDataComponents.add(new BetterLookAtProcessingBenchStateComponent(inputProgress, realMaxInputProgress));
+        }
+    }
+
+    private static void handleBenchTier(
+        @SuppressWarnings("removal") BlockState targetBlockState,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
+        if (targetBlockState instanceof BenchState benchState) {
+            targetDataComponents.add(new BetterLookAtBenchTierComponent(benchState.getTierLevel()));
+        }
+    }
+
+    private static void handleBenchContainers(
+        @SuppressWarnings("removal") BlockState targetBlockState,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
+        if (targetBlockState instanceof ProcessingBenchState processingBenchState) {
+            var FUEL_INDEX = 0;
+            var INPUTS_INDEX = 1;
+            var OUTPUTS_INDEX = 2;
+
+            var containers = processingBenchState.getItemContainer();
+
+            if (containers == null) {
+                return;
+            }
+
+            var fuelsContainer = containers.getContainer(FUEL_INDEX);
+
+            if (fuelsContainer != null) {
+                var fuels = new ArrayList<ItemStack>();
+
+                for (short index = 0; index < fuelsContainer.getCapacity(); index++) {
+                    var fuel = fuelsContainer.getItemStack(index);
+
+                    if (fuel != null) {
+                        fuels.add(fuel);
+                    }
+                }
+
+                if (!fuels.isEmpty()) {
+                    targetDataComponents.add(new BetterLookAtBenchFuelsComponent(fuels));
+                }
+            }
+
+            var inputsContainer = containers.getContainer(INPUTS_INDEX);
+
+            if (inputsContainer != null) {
+                var inputs = new ArrayList<ItemStack>();
+
+                for (short index = 0; index < inputsContainer.getCapacity(); index++) {
+                    var input = inputsContainer.getItemStack(index);
+
+                    if (input != null) {
+                        inputs.add(input);
+                    }
+                }
+
+                if (!inputs.isEmpty()) {
+                    targetDataComponents.add(new BetterLookAtBenchInputsComponent(inputs));
+                }
+            }
+
+            var outputsContainer = containers.getContainer(OUTPUTS_INDEX);
+
+            if (outputsContainer != null) {
+                var outputs = new ArrayList<ItemStack>();
+
+                for (short index = 0; index < outputsContainer.getCapacity(); index++) {
+                    var output = outputsContainer.getItemStack(index);
+
+                    if (output != null) {
+                        outputs.add(output);
+                    }
+                }
+
+                if (!outputs.isEmpty()) {
+                    targetDataComponents.add(new BetterLookAtBenchOutputsComponent(outputs));
+                }
+            }
         }
     }
 }

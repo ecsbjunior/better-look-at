@@ -7,9 +7,15 @@ import com.junior.evandro.utils.BetterLookAtColor;
 public class BetterLookAtI18n {
     public static final String NO_KEY = "server.%s.no".formatted(BetterLookAt.NAME);
     public static final String YES_KEY = "server.%s.yes".formatted(BetterLookAt.NAME);
+
     public static final String FUEL_KEY = "server.%s.fuel".formatted(BetterLookAt.NAME);
     public static final String CONSUMABLE_KEY = "server.%s.consumable".formatted(BetterLookAt.NAME);
+    public static final String BENCH_TIER_KEY = "server.%s.benchTier".formatted(BetterLookAt.NAME);
     public static final String INVULNERABLE_KEY = "server.%s.invulnerable".formatted(BetterLookAt.NAME);
+    public static final String BENCH_FUELS_KEY = "server.%s.benchFuels".formatted(BetterLookAt.NAME);
+    public static final String BENCH_INPUTS_KEY = "server.%s.benchInputs".formatted(BetterLookAt.NAME);
+    public static final String BENCH_OUTPUTS_KEY = "server.%s.benchOutputs".formatted(BetterLookAt.NAME);
+
     public static final String INVALID_ARGUMENT_VALUE_KEY = "server.%s.invalidArgumentValue".formatted(BetterLookAt.NAME);
     public static final String ONLY_PLAYERS_CAN_USE_THIS_COMMAND_KEY = "server.%s.onlyPlayersCanUseThisCommand".formatted(BetterLookAt.NAME);
 
@@ -41,6 +47,18 @@ public class BetterLookAtI18n {
         );
     }
 
+    public static Message benchTier(int tier) {
+        var benchTierMessage = BetterLookAtI18n.__(BetterLookAtI18n.BENCH_TIER_KEY);
+        var benchTierLevelMessage = BetterLookAtMessage.toMessage(tier);
+
+        return Message.join(
+            benchTierMessage,
+            BetterLookAtMessage.colon(),
+            BetterLookAtMessage.space(),
+            benchTierLevelMessage
+        );
+    }
+
     public static Message consumable(boolean consumable) {
         var consumableMessage = BetterLookAtI18n.__(BetterLookAtI18n.CONSUMABLE_KEY);
         var isConsumableMessage = BetterLookAtMessage.toMessage(consumable);
@@ -63,6 +81,18 @@ public class BetterLookAtI18n {
             BetterLookAtMessage.space(),
             isInvulnerableMessage
         );
+    }
+
+    public static Message benchFuels() {
+        return BetterLookAtI18n.__(BetterLookAtI18n.BENCH_FUELS_KEY);
+    }
+
+    public static Message benchInputs() {
+        return BetterLookAtI18n.__(BetterLookAtI18n.BENCH_INPUTS_KEY);
+    }
+
+    public static Message benchOutputs() {
+        return BetterLookAtI18n.__(BetterLookAtI18n.BENCH_OUTPUTS_KEY);
     }
 
     public static Message invalidArgumentValue(String argument, String value) {

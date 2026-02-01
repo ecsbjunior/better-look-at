@@ -41,9 +41,13 @@ public class BetterLookAtDataSystem implements IBetterLookAtSystem {
                 dataEntity.getComponent(BetterLookAtTitleComponent.class),
                 dataEntity.getComponent(BetterLookAtPluginComponent.class),
                 dataEntity.getComponent(BetterLookAtHealthComponent.class),
+                dataEntity.getComponent(BetterLookAtBenchFuelsComponent.class),
+                dataEntity.getComponent(BetterLookAtBenchTierComponent.class),
                 dataEntity.getComponent(BetterLookAtBlockIconComponent.class),
                 dataEntity.getComponent(BetterLookAtConsumableComponent.class),
                 dataEntity.getComponent(BetterLookAtEntityIconComponent.class),
+                dataEntity.getComponent(BetterLookAtBenchInputsComponent.class),
+                dataEntity.getComponent(BetterLookAtBenchOutputsComponent.class),
                 dataEntity.getComponent(BetterLookAtInvulnerableComponent.class),
                 dataEntity.getComponent(BetterLookAtRecommendedToolsComponent.class),
                 dataEntity.getComponent(BetterLookAtProcessingBenchStateComponent.class)

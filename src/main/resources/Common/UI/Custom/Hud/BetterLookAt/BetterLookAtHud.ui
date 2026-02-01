@@ -74,6 +74,11 @@ Group #BetterLookAtHud {
                             LayoutMode: Top;
                             Anchor: (Top: -2);
 
+                            Label #BetterLookAtDataBenchTier {
+                                Anchor: (Vertical: -2);
+                                Style: (FontSize: 14);
+                            }
+
                             Label #BetterLookAtDataFuel {
                                 Anchor: (Vertical: -2);
                                 Style: (FontSize: 14);
@@ -112,28 +117,131 @@ Group #BetterLookAtHud {
         }
 
         Group #BetterLookAtDataChestContainer {
-            Background: (TexturePath: "../../Common/ContainerFullPatch.png", Border: 20);
+            Background: (TexturePath: "Assets/Container.png", Border: 20);
+            Anchor: (Width: 360, Top: 10);
+            LayoutMode: Left;
+
+            Group {
+                Padding: (Horizontal: 16, Vertical: 16);
+                Background: (TexturePath: "../../Pages/Memories/ContainerBackground.png");
+
+                ItemGrid #BetterLookAtDataChest {
+                    Style: (SlotSize: 28, SlotIconSize: 28, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+                    SlotsPerRow: 11;
+                    RenderItemQualityBackground: true;
+                }
+
+                //            ItemGrid #BetterLookAtDataChest {
+                //                Style: (SlotSize: 44, SlotIconSize: 44, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+                //                SlotsPerRow: 7;
+                //                RenderItemQualityBackground: true;
+                //            }
+
+                //            ItemGrid #BetterLookAtDataChest {
+                //                Style: (SlotSize: 63, SlotIconSize: 63, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+                //                SlotsPerRow: 5;
+                //                RenderItemQualityBackground: true;
+                //            }
+            }
+        }
+
+        Group #BetterLookAtDataBenchContainer {
+            Background: (TexturePath: "Assets/Container.png", Border: 20);
             Anchor: (Width: 360, Top: 10);
             Padding: (Horizontal: 16, Vertical: 16);
             LayoutMode: Left;
 
-            ItemGrid #BetterLookAtDataChest {
-                Style: (SlotSize: 28, SlotIconSize: 28, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-                SlotsPerRow: 11;
-                RenderItemQualityBackground: true;
+            Group #BetterLookAtDataBenchFuelsContainer {
+                FlexWeight: 1;
+                LayoutMode: Top;
+
+                Label #BetterLookAtDataBenchFuelsLabel {
+                    Text: "FUELS";
+                    Anchor: (Height: 32);
+                    Style: (FontSize: 14, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center);
+                    Background: (TexturePath: "../../Common/ContainerPanelPatch.png", Border: 2);
+                }
+
+                Group {
+                    Anchor: (Height: 2);
+                }
+
+                Group {
+                    FlexWeight: 1;
+
+                    ItemGrid #BetterLookAtDataBenchFuelsItems {
+                        Style: (SlotSize: 40, SlotIconSize: 40, SlotSpacing: 4, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+                        Padding: (Top: 8, Bottom: 4, Left: 8);
+                        SlotsPerRow: 2;
+                        RenderItemQualityBackground: true;
+                        Background: (TexturePath: "../../Pages/Memories/ContainerBackground.png");
+                    }
+                }
             }
 
-            //            ItemGrid #BetterLookAtDataChest {
-            //                Style: (SlotSize: 44, SlotIconSize: 44, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-            //                SlotsPerRow: 7;
-            //                RenderItemQualityBackground: true;
-            //            }
+            Group #BetterLookAtDataBenchFuelsInputsSeparator {
+                Anchor: (Width: 4);
+            }
 
-            //            ItemGrid #BetterLookAtDataChest {
-            //                Style: (SlotSize: 63, SlotIconSize: 63, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-            //                SlotsPerRow: 5;
-            //                RenderItemQualityBackground: true;
-            //            }
+            Group #BetterLookAtDataBenchInputsContainer {
+                FlexWeight: 1;
+                LayoutMode: Top;
+
+                Label #BetterLookAtDataBenchInputsLabel {
+                    Text: "INPUTS";
+                    Anchor: (Height: 32);
+                    Style: (FontSize: 14, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center);
+                    Background: (TexturePath: "../../Common/ContainerPanelPatch.png", Border: 2);
+                }
+
+                Group {
+                    Anchor: (Height: 2);
+                }
+
+                Group {
+                    FlexWeight: 1;
+
+                    ItemGrid #BetterLookAtDataBenchInputsItems {
+                        Style: (SlotSize: 40, SlotIconSize: 40, SlotSpacing: 4, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+                        Padding: (Top: 8, Bottom: 4, Left: 8);
+                        SlotsPerRow: 2;
+                        RenderItemQualityBackground: true;
+                        Background: (TexturePath: "../../Pages/Memories/ContainerBackground.png");
+                    }
+                }
+            }
+
+            Group #BetterLookAtDataBenchInputsOutputsSeparator {
+                Anchor: (Width: 4);
+            }
+
+            Group #BetterLookAtDataBenchOutputsContainer {
+                FlexWeight: 1;
+                LayoutMode: Top;
+
+                Label #BetterLookAtDataBenchOutputsLabel {
+                    Text: "OUTPUTS";
+                    Anchor: (Height: 32);
+                    Style: (FontSize: 14, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center);
+                    Background: (TexturePath: "../../Common/ContainerPanelPatch.png", Border: 2);
+                }
+
+                Group {
+                    Anchor: (Height: 2);
+                }
+
+                Group {
+                    FlexWeight: 1;
+
+                    ItemGrid #BetterLookAtDataBenchOutputsItems {
+                        Style: (SlotSize: 40, SlotIconSize: 40, SlotSpacing: 4, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
+                        Padding: (Top: 8, Bottom: 8, Left: 8);
+                        SlotsPerRow: 2;
+                        RenderItemQualityBackground: true;
+                        Background: (TexturePath: "../../Pages/Memories/ContainerBackground.png");
+                    }
+                }
+            }
         }
     }
 }

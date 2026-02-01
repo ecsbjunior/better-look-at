@@ -30,7 +30,8 @@ public class BetterLookAtHud extends BetterLookAtCustomHud {
     public void render(Object object) {
         if (object instanceof BetterLookAtDataRecord(
             var fuelComponent, var chestComponent, var titleComponent, var pluginComponent, var healthComponent,
-            var blockIconComponent, var consumableComponent, var entityIconComponent, var invulnerableComponent,
+            var benchFuelComponent, var benchTierComponent, var blockIconComponent, var consumableComponent,
+            var entityIconComponent, var benchInputsComponent, var benchOutputsComponent, var invulnerableComponent,
             var recommendedToolsComponent, var processingBenchStateComponent
         )) {
             var context = new Context();
@@ -42,13 +43,22 @@ public class BetterLookAtHud extends BetterLookAtCustomHud {
             entityIconComponent.ifPresentOrElse(context.icon::show, context.icon::hideEntity);
             healthComponent.ifPresentOrElse(context.progressBar::show, context.progressBar::hideHealth);
             processingBenchStateComponent.ifPresentOrElse(context.progressBar::show, context.progressBar::hideProcessingBenchState);
+
+            benchTierComponent.ifPresentOrElse(context.benchTier::show, context.benchTier::hide);
             fuelComponent.ifPresentOrElse(context.fuel::show, context.fuel::hide);
             consumableComponent.ifPresentOrElse(context.consumable::show, context.consumable::hide);
             invulnerableComponent.ifPresentOrElse(context.invulnerable::show, context.invulnerable::hide);
             BetterLookAtBooleanUtils.ifTrue(context.showMetadata, context.metadata::show, context.metadata::hide);
+
             recommendedToolsComponent.ifPresentOrElse(context.recommendedTools::show, context.recommendedTools::hide);
             pluginComponent.ifPresentOrElse(context.plugin::show, context.plugin::hide);
+
             chestComponent.ifPresentOrElse(context.chest::show, context.chest::hide);
+
+            benchFuelComponent.ifPresentOrElse(context.benchFuels::show, context.benchFuels::hide);
+            benchInputsComponent.ifPresentOrElse(context.benchInputs::show, context.benchInputs::hide);
+            benchOutputsComponent.ifPresentOrElse(context.benchOutputs::show, context.benchOutputs::hide);
+            BetterLookAtBooleanUtils.ifTrue(context.showBench, context.bench::show, context.bench::hide);
 
             this.update(false, context.uiCommandBuilder);
         }
@@ -64,38 +74,60 @@ public class BetterLookAtHud extends BetterLookAtCustomHud {
     }
 
     public static final class Context {
+        private boolean showBench;
         private boolean showMetadata;
         private boolean shouldSpacing;
+        private boolean showingBenchFuels;
+        private boolean showingBenchInputs;
+        private boolean showingBenchOutputs;
         private final UICommandBuilder uiCommandBuilder;
 
         public final Root root;
-        public final Metadata.Fuel fuel;
         public final Icon icon;
         public final Chest chest;
         public final Title title;
         public final Plugin plugin;
-        public final Metadata metadata;
-        public final Metadata.Consumable consumable;
         public final ProgressBar progressBar;
-        public final Metadata.Invulnerable invulnerable;
         public final RecommendedTools recommendedTools;
 
+        public final Metadata metadata;
+        public final Metadata.Fuel fuel;
+        public final Metadata.BenchTier benchTier;
+        public final Metadata.Consumable consumable;
+        public final Metadata.Invulnerable invulnerable;
+
+        public final Bench bench;
+        public final Bench.Fuels benchFuels;
+        public final Bench.Inputs benchInputs;
+        public final Bench.Outputs benchOutputs;
+
         public Context() {
+            this.showBench = false;
             this.showMetadata = false;
             this.shouldSpacing = false;
+            this.showingBenchFuels = false;
+            this.showingBenchInputs = false;
+            this.showingBenchOutputs = false;
             this.uiCommandBuilder = new UICommandBuilder();
 
             this.root = new Root(this);
-            this.fuel = new Metadata.Fuel(this);
             this.icon = new Icon(this);
             this.chest = new Chest(this);
             this.title = new Title(this);
             this.plugin = new Plugin(this);
-            this.metadata = new Metadata(this);
-            this.consumable = new Metadata.Consumable(this);
             this.progressBar = new ProgressBar(this);
-            this.invulnerable = new Metadata.Invulnerable(this);
             this.recommendedTools = new RecommendedTools(this);
+
+            this.metadata = new Metadata(this);
+            this.fuel = new Metadata.Fuel(this);
+            this.benchTier = new Metadata.BenchTier(this);
+            this.consumable = new Metadata.Consumable(this);
+            this.invulnerable = new Metadata.Invulnerable(this);
+
+            this.bench = new Bench(this);
+            this.benchFuels = new Bench.Fuels(this);
+            this.benchInputs = new Bench.Inputs(this);
+            this.benchOutputs = new Bench.Outputs(this);
         }
     }
 
@@ -367,6 +399,127 @@ public class BetterLookAtHud extends BetterLookAtCustomHud {
 
             private void hide() {
                 this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_INVULNERABLE_SELECTOR), false);
+            }
+        }
+
+        public static final class BenchTier {
+            private static final String DATA_BENCH_TIER_SELECTOR = "#BetterLookAtDataBenchTier";
+
+            private final Context context;
+
+            public BenchTier(Context context) {
+                this.context = context;
+            }
+
+            private void show(BetterLookAtBenchTierComponent benchTier) {
+                this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_TIER_SELECTOR), true);
+                this.context.uiCommandBuilder.set("%s.TextSpans".formatted(DATA_BENCH_TIER_SELECTOR), BetterLookAtI18n.benchTier(benchTier.value()));
+                this.context.showMetadata = true;
+            }
+
+            private void hide() {
+                this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_TIER_SELECTOR), false);
+            }
+        }
+    }
+
+    public static final class Bench {
+        private static final String DATA_BENCH_CONTAINER_SELECTOR = "#BetterLookAtDataBenchContainer";
+        private static final String DATA_BENCH_FUELS_INPUTS_SEPARATOR_SELECTOR =
+            "#BetterLookAtDataBenchFuelsInputsSeparator";
+        private static final String DATA_BENCH_INPUTS_OUTPUTS_SEPARATOR_SELECTOR =
+            "#BetterLookAtDataBenchInputsOutputsSeparator";
+
+        private final Context context;
+
+        public Bench(Context context) {
+            this.context = context;
+        }
+
+        private void show() {
+            var showFuelsInputsSeparator = this.context.showingBenchFuels && this.context.showingBenchInputs;
+            var showInputsOutputsSeparator = this.context.showingBenchInputs && this.context.showingBenchOutputs;
+            this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_CONTAINER_SELECTOR), true);
+            this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_FUELS_INPUTS_SEPARATOR_SELECTOR), showFuelsInputsSeparator);
+            this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_INPUTS_OUTPUTS_SEPARATOR_SELECTOR), showInputsOutputsSeparator);
+        }
+
+        private void hide() {
+            this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_CONTAINER_SELECTOR), false);
+        }
+
+        public static final class Fuels {
+            private static final String DATA_BENCH_FUELS_LABEL_SELECTOR = "#BetterLookAtDataBenchFuelsLabel";
+            private static final String DATA_BENCH_FUELS_ITEMS_SELECTOR = "#BetterLookAtDataBenchFuelsItems";
+            private static final String DATA_BENCH_FUELS_CONTAINER_SELECTOR = "#BetterLookAtDataBenchFuelsContainer";
+
+            private final Context context;
+
+            public Fuels(Context context) {
+                this.context = context;
+            }
+
+            private void show(BetterLookAtBenchFuelsComponent fuels) {
+                this.context.uiCommandBuilder.set(
+                    "%s.TextSpans".formatted(DATA_BENCH_FUELS_LABEL_SELECTOR), BetterLookAtI18n.benchFuels());
+                this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_FUELS_CONTAINER_SELECTOR), true);
+                this.context.uiCommandBuilder.set("%s.ItemStacks".formatted(DATA_BENCH_FUELS_ITEMS_SELECTOR), fuels.items());
+                this.context.showBench = true;
+                this.context.showingBenchFuels = true;
+            }
+
+            private void hide() {
+                this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_FUELS_CONTAINER_SELECTOR), false);
+            }
+        }
+
+        public static final class Inputs {
+            private static final String DATA_BENCH_INPUTS_LABEL_SELECTOR = "#BetterLookAtDataBenchInputsLabel";
+            private static final String DATA_BENCH_INPUTS_ITEMS_SELECTOR = "#BetterLookAtDataBenchInputsItems";
+            private static final String DATA_BENCH_INPUTS_CONTAINER_SELECTOR = "#BetterLookAtDataBenchInputsContainer";
+
+            private final Context context;
+
+            public Inputs(Context context) {
+                this.context = context;
+            }
+
+            private void show(BetterLookAtBenchInputsComponent inputs) {
+                this.context.uiCommandBuilder.set(
+                    "%s.TextSpans".formatted(DATA_BENCH_INPUTS_LABEL_SELECTOR), BetterLookAtI18n.benchInputs());
+                this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_INPUTS_CONTAINER_SELECTOR), true);
+                this.context.uiCommandBuilder.set("%s.ItemStacks".formatted(DATA_BENCH_INPUTS_ITEMS_SELECTOR), inputs.items());
+                this.context.showBench = true;
+                this.context.showingBenchInputs = true;
+            }
+
+            private void hide() {
+                this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_INPUTS_CONTAINER_SELECTOR), false);
+            }
+        }
+
+        public static final class Outputs {
+            private static final String DATA_BENCH_OUTPUTS_LABEL_SELECTOR = "#BetterLookAtDataBenchOutputsLabel";
+            private static final String DATA_BENCH_OUTPUTS_ITEMS_SELECTOR = "#BetterLookAtDataBenchOutputsItems";
+            private static final String DATA_BENCH_OUTPUTS_CONTAINER_SELECTOR = "#BetterLookAtDataBenchOutputsContainer";
+
+            private final Context context;
+
+            public Outputs(Context context) {
+                this.context = context;
+            }
+
+            private void show(BetterLookAtBenchOutputsComponent outputs) {
+                this.context.uiCommandBuilder.set(
+                    "%s.TextSpans".formatted(DATA_BENCH_OUTPUTS_LABEL_SELECTOR), BetterLookAtI18n.benchOutputs());
+                this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_OUTPUTS_CONTAINER_SELECTOR), true);
+                this.context.uiCommandBuilder.set("%s.ItemStacks".formatted(DATA_BENCH_OUTPUTS_ITEMS_SELECTOR), outputs.items());
+                this.context.showBench = true;
+                this.context.showingBenchOutputs = true;
+            }
+
+            private void hide() {
+                this.context.uiCommandBuilder.set("%s.Visible".formatted(DATA_BENCH_OUTPUTS_CONTAINER_SELECTOR), false);
             }
         }
     }

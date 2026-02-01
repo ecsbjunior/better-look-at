@@ -2,8 +2,12 @@ BetterLookAt.no=No
 BetterLookAt.yes=Yes
 
 BetterLookAt.fuel=Fuel
+BetterLookAt.benchTier=Bench Tier
 BetterLookAt.consumable=Consumable
 BetterLookAt.invulnerable=Invulnerable
+BetterLookAt.benchFuels=FUELS
+BetterLookAt.benchInputs=INPUTS
+BetterLookAt.benchOutputs=OUTPUTS
 
 BetterLookAt.invalidArgumentValue=The {argument} argument value ({value}) is not valid
 BetterLookAt.onlyPlayersCanUseThisCommand=Only players can use {command} commands
