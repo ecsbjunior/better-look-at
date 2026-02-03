@@ -8,13 +8,15 @@ import com.hypixel.hytale.codec.codecs.EnumCodec;
 
 public class BetterLookAtConfig {
     private boolean enabled = true;
-    private boolean showChestContent = true;
+    private boolean showBench = true;
+    private boolean showChest = true;
     private BetterLookAtPosition position = BetterLookAtPosition.TOP_LEFT;
 
     public static final BuilderCodec<BetterLookAtConfig> CODEC = BuilderCodec
         .builder(BetterLookAtConfig.class, BetterLookAtConfig::new)
         .append(EnabledField.create(), EnabledField::setter, EnabledField::getter).add()
-        .append(ShowChestContentField.create(), ShowChestContentField::setter, ShowChestContentField::getter).add()
+        .append(ShowBenchField.create(), ShowBenchField::setter, ShowBenchField::getter).add()
+        .append(ShowChestField.create(), ShowChestField::setter, ShowChestField::getter).add()
         .append(PositionField.create(), PositionField::setter, PositionField::getter).add()
         .build();
 
@@ -26,12 +28,20 @@ public class BetterLookAtConfig {
         this.enabled = enabled;
     }
 
-    public boolean getShowChestContent() {
-        return this.showChestContent;
+    public boolean getShowBench() {
+        return this.showBench;
     }
 
-    public void setShowChestContent(boolean showChestContent) {
-        this.showChestContent = showChestContent;
+    public void setShowBench(boolean showBench) {
+        this.showBench = showBench;
+    }
+
+    public boolean getShowChest() {
+        return this.showChest;
+    }
+
+    public void setShowChest(boolean showChest) {
+        this.showChest = showChest;
     }
 
     public BetterLookAtPosition getPosition() {
@@ -58,19 +68,35 @@ public class BetterLookAtConfig {
         }
     }
 
-    private static class ShowChestContentField {
-        public static String FIELD_NAME = "ShowChestContent";
+    private static class ShowBenchField {
+        public static String FIELD_NAME = "ShowBench";
 
         private static KeyedCodec<Boolean> create() {
             return new KeyedCodec<>(FIELD_NAME, Codec.BOOLEAN);
         }
 
         private static boolean getter(BetterLookAtConfig config, ExtraInfo extra) {
-            return config.showChestContent;
+            return config.showBench;
         }
 
         private static void setter(BetterLookAtConfig config, Boolean value, ExtraInfo extra) {
-            config.showChestContent = value;
+            config.showBench = value;
+        }
+    }
+
+    private static class ShowChestField {
+        public static String FIELD_NAME = "ShowChest";
+
+        private static KeyedCodec<Boolean> create() {
+            return new KeyedCodec<>(FIELD_NAME, Codec.BOOLEAN);
+        }
+
+        private static boolean getter(BetterLookAtConfig config, ExtraInfo extra) {
+            return config.showChest;
+        }
+
+        private static void setter(BetterLookAtConfig config, Boolean value, ExtraInfo extra) {
+            config.showChest = value;
         }
     }
 

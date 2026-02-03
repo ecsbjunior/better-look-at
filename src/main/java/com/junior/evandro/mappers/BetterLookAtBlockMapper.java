@@ -111,7 +111,7 @@ public class BetterLookAtBlockMapper {
         @SuppressWarnings("removal") BlockState targetBlockState,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        if (!BetterLookAt.CONFIG.get().getShowChestContent()) {
+        if (!BetterLookAt.CONFIG.get().getShowChest()) {
             return;
         }
 
@@ -249,6 +249,10 @@ public class BetterLookAtBlockMapper {
         @SuppressWarnings("removal") BlockState targetBlockState,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
+        if (!BetterLookAt.CONFIG.get().getShowBench()) {
+            return;
+        }
+
         if (targetBlockState instanceof ProcessingBenchState processingBenchState) {
             var FUEL_INDEX = 0;
             var INPUTS_INDEX = 1;

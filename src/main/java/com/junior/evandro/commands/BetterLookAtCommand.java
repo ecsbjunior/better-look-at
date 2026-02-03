@@ -1,33 +1,33 @@
 package com.junior.evandro.commands;
 
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.GameMode;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
-import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
-import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractAsyncCommand;
+import com.hypixel.hytale.server.core.command.system.basecommands.AbstractAsyncPlayerCommand;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.junior.evandro.BetterLookAt;
-import com.junior.evandro.config.BetterLookAtPosition;
 import com.junior.evandro.messages.BetterLookAtI18n;
-import com.junior.evandro.utils.BetterLookAtColor;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 
 public class BetterLookAtCommand extends AbstractAsyncCommand {
-    private final OptionalArg<Boolean> enabledArg;
-    private final OptionalArg<Boolean> showChestArg;
-    private final OptionalArg<String> positionArg;
-
     public BetterLookAtCommand() {
         super("betterlookat", "You can configure BetterLookAt with this command");
 
-        this.enabledArg = this.withOptionalArg("enabled", "true, false", ArgTypes.BOOLEAN);
-        this.showChestArg = this.withOptionalArg("showchest", "true, false", ArgTypes.BOOLEAN);
-        this.positionArg = this.withOptionalArg("position",
-            "top-left, top-center, top-right, bottom-left, bottom-right", ArgTypes.STRING);
-
         this.addAliases("bla");
+
+        this.addSubCommand(new BetterLookAtBenchCommand());
+        this.addSubCommand(new BetterLookAtChestCommand());
+        this.addSubCommand(new BetterLookAtPositionCommand());
+        this.addSubCommand(new BetterLookAtCommand.ShowCommand());
+        this.addSubCommand(new BetterLookAtCommand.HideCommand());
+
         this.setPermissionGroup(GameMode.Adventure);
     }
 
@@ -46,40 +46,6 @@ public class BetterLookAtCommand extends AbstractAsyncCommand {
             return CompletableFuture.runAsync(() -> {
                 var config = BetterLookAt.CONFIG.get();
 
-                var enabledArgumentValue = this.enabledArg.get(context);
-
-                if (enabledArgumentValue != null) {
-                    config.setEnabled(enabledArgumentValue);
-                }
-
-                var showChestArgumentValue = this.showChestArg.get(context);
-
-                if (showChestArgumentValue != null) {
-                    config.setShowChestContent(showChestArgumentValue);
-                }
-
-                var positionArgumentValue = this.positionArg.get(context);
-
-                if (positionArgumentValue != null) {
-                    var position = switch (positionArgumentValue) {
-                        case "top-left" -> BetterLookAtPosition.TOP_LEFT;
-                        case "top-center" -> BetterLookAtPosition.TOP_CENTER;
-                        case "top-right" -> BetterLookAtPosition.TOP_RIGHT;
-//                        case "bottom-left" -> BetterLookAtPosition.BOTTOM_LEFT;
-//                        case "bottom-right" -> BetterLookAtPosition.BOTTOM_RIGHT;
-                        default -> null;
-                    };
-
-                    if (position == null) {
-                        context.sendMessage(
-                            BetterLookAtI18n
-                                .invalidArgumentValue("position", positionArgumentValue)
-                                .color(BetterLookAtColor.DANGER));
-                    } else {
-                        config.setPosition(position);
-                    }
-                }
-
                 BetterLookAt.CONFIG.save();
             }, world);
         } else {
@@ -87,5 +53,53 @@ public class BetterLookAtCommand extends AbstractAsyncCommand {
         }
 
         return CompletableFuture.completedFuture(null);
+    }
+
+    private static class ShowCommand extends AbstractAsyncPlayerCommand {
+        public ShowCommand() {
+            super("show", "This command show HUD");
+        }
+
+        @Nonnull
+        @Override
+        protected CompletableFuture<Void> executeAsync(
+            @Nonnull CommandContext commandContext,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> storeRef,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world
+        ) {
+            return CompletableFuture.runAsync(() -> {
+                var config = BetterLookAt.CONFIG.get();
+
+                config.setEnabled(true);
+
+                BetterLookAt.CONFIG.save();
+            }, world);
+        }
+    }
+
+    private static class HideCommand extends AbstractAsyncPlayerCommand {
+        public HideCommand() {
+            super("hide", "This command hide HUD");
+        }
+
+        @Nonnull
+        @Override
+        protected CompletableFuture<Void> executeAsync(
+            @Nonnull CommandContext commandContext,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> storeRef,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world
+        ) {
+            return CompletableFuture.runAsync(() -> {
+                var config = BetterLookAt.CONFIG.get();
+
+                config.setEnabled(false);
+
+                BetterLookAt.CONFIG.save();
+            }, world);
+        }
     }
 }
