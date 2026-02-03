@@ -14,6 +14,7 @@ import com.junior.evandro.ecs.IBetterLookAtComponent;
 import com.junior.evandro.ecs.data.components.*;
 import com.junior.evandro.ecs.ticking.BetterLookAtPlayerLookAtTickingSystem;
 import com.junior.evandro.utils.BetterLookAtDataInteraction;
+import com.junior.evandro.utils.BetterLookAtLoader;
 import com.junior.evandro.utils.BetterLookAtMovementStateUtil;
 
 import javax.annotation.Nonnull;
@@ -61,6 +62,7 @@ public class BetterLookAtEntityMapper {
         BetterLookAtEntityMapper.handleIcon(targetEntityRole, targetDataComponents);
         BetterLookAtEntityMapper.handleTitle(targetEntityRole, targetDataComponents);
         BetterLookAtEntityMapper.handleHealth(targetEntityRole, targetEntityRef, targetDataComponents);
+        BetterLookAtEntityMapper.handlePlugin(targetEntityRole, targetDataComponents);
 
         var dataInteraction = BetterLookAtMovementStateUtil.toDataInteraction(storeRef, commandBuffer);
 
@@ -72,11 +74,21 @@ public class BetterLookAtEntityMapper {
     }
 
     private static void handleIcon(@Nonnull Role entity, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
-        targetDataComponents.add(new BetterLookAtEntityIconComponent(entity.getRoleName()));
+        var entityName = entity.isMemoriesNameOverriden() ?
+            entity.getMemoriesNameOverride() :
+            entity.getRoleName();
+
+        targetDataComponents.add(new BetterLookAtEntityIconComponent(entityName));
     }
 
     private static void handleTitle(@Nonnull Role entity, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
-        targetDataComponents.add(new BetterLookAtTitleComponent(Message.translation(entity.getNameTranslationKey())));
+        var entityName = entity.isMemoriesNameOverriden() ?
+            entity.getMemoriesNameOverride() :
+            entity.getRoleName();
+
+        var translatedEntityName = Message.translation("server.npcRoles.%s.name".formatted(entityName));
+
+        targetDataComponents.add(new BetterLookAtTitleComponent(translatedEntityName));
     }
 
     private static void handleHealth(@Nonnull Role entity, @Nonnull Ref<EntityStore> entityRef, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
@@ -100,6 +112,15 @@ public class BetterLookAtEntityMapper {
         }
 
         targetDataComponents.add(new BetterLookAtHealthComponent(health, maxHealth));
+    }
+
+    private static void handlePlugin(@Nonnull Role entity, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+        var id = entity.getRoleName();
+        var plugin = BetterLookAtLoader.Entity.getPlugin(id);
+
+        if (plugin != null) {
+            targetDataComponents.add(new BetterLookAtPluginComponent(plugin));
+        }
     }
 
     private static void handleInvulnerable(@Nonnull Role entity, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {

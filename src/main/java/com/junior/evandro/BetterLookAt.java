@@ -1,6 +1,8 @@
 package com.junior.evandro;
 
+import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.util.Config;
@@ -10,9 +12,8 @@ import com.junior.evandro.ecs.BetterLookAtWorld;
 import com.junior.evandro.ecs.data.BetterLookAtDataSystem;
 import com.junior.evandro.ecs.data.entities.BetterLookAtDataEntity;
 import com.junior.evandro.ecs.ticking.BetterLookAtPlayerLookAtTickingSystem;
-import com.junior.evandro.utils.BetterLookAtBlockUtils;
-import com.junior.evandro.utils.BetterLookAtItemUtils;
 import com.junior.evandro.ui.BetterLookAtHudManager;
+import com.junior.evandro.utils.BetterLookAtNPCRole;
 
 import javax.annotation.Nonnull;
 
@@ -45,15 +46,22 @@ public class BetterLookAt extends JavaPlugin {
         this.getCommandRegistry().registerCommand(new BetterLookAtCommand());
         this.getEntityStoreRegistry().registerSystem(new BetterLookAtPlayerLookAtTickingSystem());
 
+        // TODO(evandro): find a better way to get npc plugin
+        this.getAssetRegistry().register(
+            HytaleAssetStore.builder(BetterLookAtNPCRole.class, new DefaultAssetMap<>())
+                .setPath("NPC/Roles")
+                .setCodec(BetterLookAtNPCRole.CODEC)
+                .setKeyFunction(BetterLookAtNPCRole::getId)
+                .setReplaceOnRemove(BetterLookAtNPCRole::new)
+                .build()
+        );
+
         BetterLookAt.LOGGER.atInfo().log("The plugin has been successfully setup");
     }
 
     @Override
     protected void start() {
         super.start();
-
-        BetterLookAtItemUtils.init();
-        BetterLookAtBlockUtils.init();
 
         BetterLookAt.HUD_MANAGER = BetterLookAtHudManager.getInstance();
 

@@ -7,6 +7,7 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.blockhealth.BlockHealthModule;
@@ -20,10 +21,7 @@ import com.junior.evandro.BetterLookAt;
 import com.junior.evandro.ecs.IBetterLookAtComponent;
 import com.junior.evandro.ecs.data.components.*;
 import com.junior.evandro.ecs.ticking.BetterLookAtPlayerLookAtTickingSystem;
-import com.junior.evandro.utils.BetterLookAtBlockUtils;
-import com.junior.evandro.utils.BetterLookAtDataInteraction;
-import com.junior.evandro.utils.BetterLookAtItemUtils;
-import com.junior.evandro.utils.BetterLookAtMovementStateUtil;
+import com.junior.evandro.utils.*;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -75,7 +73,6 @@ public class BetterLookAtBlockMapper {
         }
 
         var item = targetBlockType.getItem();
-        var recommendedTools = BetterLookAtItemUtils.getRecommendedTools(targetBlockType);
 
         if (item == null) {
             return targetDataComponents;
@@ -87,7 +84,7 @@ public class BetterLookAtBlockMapper {
         BetterLookAtBlockMapper.handleTitle(item, targetDataComponents);
         BetterLookAtBlockMapper.handleHealth(world, targetBaseBlockPosition, targetDataComponents);
         BetterLookAtBlockMapper.handlePlugin(item, targetDataComponents);
-        BetterLookAtBlockMapper.handleRecommendedTools(recommendedTools, targetDataComponents);
+        BetterLookAtBlockMapper.handleRecommendedTools(targetBlockType, targetDataComponents);
         BetterLookAtBlockMapper.handleProcessingBenchState(targetBlockState, targetDataComponents);
         BetterLookAtBlockMapper.handleBenchContainers(targetBlockState, targetDataComponents);
 
@@ -187,7 +184,7 @@ public class BetterLookAtBlockMapper {
 
     private static void handlePlugin(@Nonnull Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
         var id = item.getId();
-        var plugin = BetterLookAtBlockUtils.getPlugin(id);
+        var plugin = BetterLookAtLoader.Block.getPlugin(id);
 
         if (plugin != null) {
             targetDataComponents.add(new BetterLookAtPluginComponent(plugin));
@@ -198,14 +195,17 @@ public class BetterLookAtBlockMapper {
         targetDataComponents.add(new BetterLookAtConsumableComponent(item.isConsumable()));
     }
 
-    private static void handleRecommendedTools(@Nonnull List<String> recommendedTools, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
-        var tools = recommendedTools.stream().map(ItemStack::new).toList();
+    private static void handleRecommendedTools(@Nonnull BlockType blockType, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+        var recommendedTools = BetterLookAtLoader.Item
+            .getRecommendedTools(blockType)
+            .stream().map(ItemStack::new)
+            .toList();
 
-        if (tools.isEmpty()) {
+        if (recommendedTools.isEmpty()) {
             return;
         }
 
-        targetDataComponents.add(new BetterLookAtRecommendedToolsComponent(tools));
+        targetDataComponents.add(new BetterLookAtRecommendedToolsComponent(recommendedTools));
     }
 
     private static void handleProcessingBenchState(
