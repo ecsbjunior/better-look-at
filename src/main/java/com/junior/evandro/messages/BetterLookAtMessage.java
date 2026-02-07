@@ -33,4 +33,8 @@ public class BetterLookAtMessage {
     public static Message space() {
         return Message.raw(" ");
     }
+
+    public static Message slash() {
+        return Message.raw("/");
+    }
 }

@@ -10,14 +10,20 @@ public record BetterLookAtDataRecord(
     Optional<BetterLookAtTitleComponent> titleComponent,
     Optional<BetterLookAtPluginComponent> pluginComponent,
     Optional<BetterLookAtHealthComponent> healthComponent,
-    Optional<BetterLookAtBenchFuelsComponent> benchFuelComponent,
     Optional<BetterLookAtBenchTierComponent> benchTierComponent,
     Optional<BetterLookAtBlockIconComponent> blockIconComponent,
+    Optional<BetterLookAtBenchFuelsComponent> benchFuelComponent,
     Optional<BetterLookAtConsumableComponent> consumableComponent,
     Optional<BetterLookAtEntityIconComponent> entityIconComponent,
     Optional<BetterLookAtBenchInputsComponent> benchInputsComponent,
     Optional<BetterLookAtBenchOutputsComponent> benchOutputsComponent,
     Optional<BetterLookAtInvulnerableComponent> invulnerableComponent,
+    Optional<BetterLookAtFarmingStagesComponent> farmingStagesComponent,
     Optional<BetterLookAtRecommendedToolsComponent> recommendedToolsComponent,
-    Optional<BetterLookAtProcessingBenchStateComponent> processingBenchStateComponent
+    Optional<BetterLookAtFarmingLightStatusComponent> farmingLightStatusComponent,
+    Optional<BetterLookAtFarmingWaterStatusComponent> farmingWaterStatusComponent,
+    Optional<BetterLookAtProcessingBenchStateComponent> processingBenchStateComponent,
+    Optional<BetterLookAtFarmingRemainingTimeComponent> farmingRemainingTimeComponent,
+    Optional<BetterLookAtFarmingCurrentStageInfoComponent> farmingCurrentStageInfoComponent,
+    Optional<BetterLookAtFarmingFertilizerStatusComponent> farmingFertilizerStatusComponent
 ) { }

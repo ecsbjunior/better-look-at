@@ -95,14 +95,9 @@ Group #BetterLookAtHud {
                             }
                         }
 
-                        Group #BetterLookAtDataRecommendedToolsContainer {
+                        Group #BetterLookAtRecommendedToolsContainer {
                             LayoutMode: Left;
-
-                            ItemGrid #BetterLookAtDataRecommendedTools {
-                                Style: (SlotSize: 22, SlotIconSize: 22, SlotSpacing: 0, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-                                SlotsPerRow: 8;
-                                RenderItemQualityBackground: true;
-                            }
+                            // RecommendedTool.ui
                         }
 
                         Group #BetterLookAtDataPluginContainer {
@@ -121,27 +116,9 @@ Group #BetterLookAtHud {
             Anchor: (Width: 360, Top: 10);
             LayoutMode: Left;
 
-            Group {
+            Group #BetterLookAtDataChestWrapper {
                 Padding: (Horizontal: 16, Vertical: 16);
-                Background: (TexturePath: "../../Pages/Memories/ContainerBackground.png");
-
-                ItemGrid #BetterLookAtDataChest {
-                    Style: (SlotSize: 28, SlotIconSize: 28, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-                    SlotsPerRow: 11;
-                    RenderItemQualityBackground: true;
-                }
-
-                //            ItemGrid #BetterLookAtDataChest {
-                //                Style: (SlotSize: 44, SlotIconSize: 44, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-                //                SlotsPerRow: 7;
-                //                RenderItemQualityBackground: true;
-                //            }
-
-                //            ItemGrid #BetterLookAtDataChest {
-                //                Style: (SlotSize: 63, SlotIconSize: 63, SlotSpacing: 2, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-                //                SlotsPerRow: 5;
-                //                RenderItemQualityBackground: true;
-                //            }
+                // BetterLookAtChest.ui
             }
         }
 
@@ -166,16 +143,9 @@ Group #BetterLookAtHud {
                     Anchor: (Height: 2);
                 }
 
-                Group {
+                Group #BetterLookAtDataBenchFuelsWrapper {
                     FlexWeight: 1;
-
-                    ItemGrid #BetterLookAtDataBenchFuelsItems {
-                        Style: (SlotSize: 40, SlotIconSize: 40, SlotSpacing: 4, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-                        Padding: (Top: 8, Bottom: 4, Left: 8);
-                        SlotsPerRow: 2;
-                        RenderItemQualityBackground: true;
-                        Background: (TexturePath: "../../Pages/Memories/ContainerBackground.png");
-                    }
+                    // BetterLookAtBenchItems.ui
                 }
             }
 
@@ -198,16 +168,9 @@ Group #BetterLookAtHud {
                     Anchor: (Height: 2);
                 }
 
-                Group {
+                Group #BetterLookAtDataBenchInputsWrapper {
                     FlexWeight: 1;
-
-                    ItemGrid #BetterLookAtDataBenchInputsItems {
-                        Style: (SlotSize: 40, SlotIconSize: 40, SlotSpacing: 4, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-                        Padding: (Top: 8, Bottom: 4, Left: 8);
-                        SlotsPerRow: 2;
-                        RenderItemQualityBackground: true;
-                        Background: (TexturePath: "../../Pages/Memories/ContainerBackground.png");
-                    }
+                    // BetterLookAtBenchItems.ui
                 }
             }
 
@@ -230,18 +193,127 @@ Group #BetterLookAtHud {
                     Anchor: (Height: 2);
                 }
 
-                Group {
+                Group #BetterLookAtDataBenchOutputsWrapper {
                     FlexWeight: 1;
-
-                    ItemGrid #BetterLookAtDataBenchOutputsItems {
-                        Style: (SlotSize: 40, SlotIconSize: 40, SlotSpacing: 4, SlotBackground: "../../Common/BlockSelectorSlotBackground.png");
-                        Padding: (Top: 8, Bottom: 8, Left: 8);
-                        SlotsPerRow: 2;
-                        RenderItemQualityBackground: true;
-                        Background: (TexturePath: "../../Pages/Memories/ContainerBackground.png");
-                    }
+                    // BetterLookAtBenchItems.ui
                 }
             }
+        }
+
+        Group #BetterLookAtFarmingContainer {
+            Anchor: (Width: 360, Top: 10);
+            Padding: (Horizontal: 16, Vertical: 16);
+            Background: (TexturePath: "Assets/Container.png", Border: 20);
+            LayoutMode: Top;
+
+            Group #BetterLookAtFarmingStagesContainer {
+                LayoutMode: Left;
+                FlexWeight: 1;
+                // BetterLookAtFarmingStages.ui
+            }
+
+            Group #BetterLookAtFarmingCurrentStageInfoContainer {
+                FlexWeight: 1;
+                LayoutMode: Left;
+
+                Label #BetterLookAtFarmingCurrentStageInfoLeftLabel {
+                    FlexWeight: 1;
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14);
+                }
+
+                Label #BetterLookAtFarmingCurrentStageInfoRightLabel {
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14, RenderBold: true);
+                }
+            }
+
+            Group #BetterLookAtFarmingTimeContainer {
+                FlexWeight: 1;
+                LayoutMode: Left;
+
+                Label #BetterLookAtFarmingTimeLeftLabel {
+                    FlexWeight: 1;
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14);
+                }
+
+                Label #BetterLookAtFarmingTimeRightLabel {
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14);
+                }
+            }
+
+            Group #BetterLookAtFarmingTimeConditionSeparator {
+                Visible: false;
+                LayoutMode: Top;
+                Group { Anchor: (Height: 6); }
+                $C.@PanelSeparatorFancy  { }
+                Group { Anchor: (Height: 4); }
+            }
+
+            Group #BetterLookAtFarmingLightStatusContainer {
+                FlexWeight: 1;
+                LayoutMode: Left;
+
+                Label #BetterLookAtFarmingLightStatusLeftLabel {
+                    FlexWeight: 1;
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14);
+                }
+
+                Label #BetterLookAtFarmingLightStatusRightLabel {
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14, RenderBold: true);
+                }
+            }
+
+            Group #BetterLookAtFarmingWaterStatusContainer {
+                FlexWeight: 1;
+                LayoutMode: Left;
+
+                Label #BetterLookAtFarmingWaterStatusLeftLabel {
+                    FlexWeight: 1;
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14);
+                }
+
+                Label #BetterLookAtFarmingWaterStatusRightLabel {
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14, RenderBold: true);
+                }
+            }
+
+            Group #BetterLookAtFarmingFertilizerStatusContainer {
+                FlexWeight: 1;
+                LayoutMode: Left;
+
+                Label #BetterLookAtFarmingFertilizerStatusLeftLabel {
+                    FlexWeight: 1;
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14);
+                }
+
+                Label #BetterLookAtFarmingFertilizerStatusRightLabel {
+                    Anchor: (Vertical: -2);
+                    Style: (FontSize: 14, RenderBold: true);
+                }
+            }
+
+            Group #BetterLookAtFarmingConditionTipsSeparator {
+                Visible: false;
+                LayoutMode: Top;
+                Group { Anchor: (Height: 6); }
+                $C.@PanelSeparatorFancy  { }
+                Group { Anchor: (Height: 4); }
+            }
+
+//            Label #BetterLookAtFarmingTips {
+//                FlexWeight: 1;
+//                Anchor: (Vertical: -2);
+//                Style: (FontSize: 14);
+//                Text: "- Your can obtain fertilizer on the farmers workbench";
+//            }
         }
     }
 }

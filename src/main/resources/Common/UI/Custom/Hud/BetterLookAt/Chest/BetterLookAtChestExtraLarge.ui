@@ -1,0 +1,5 @@
+ItemGrid #BetterLookAtDataChest {
+    Style: (SlotSize: 52, SlotIconSize: 52, SlotSpacing: 3, SlotBackground: "../../../Common/BlockSelectorSlotBackground.png");
+    SlotsPerRow: 6;
+    RenderItemQualityBackground: true;
+}

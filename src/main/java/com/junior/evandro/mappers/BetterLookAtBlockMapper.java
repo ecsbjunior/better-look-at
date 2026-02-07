@@ -1,5 +1,6 @@
 package com.junior.evandro.mappers;
 
+import com.hypixel.hytale.builtin.adventure.farming.states.FarmingBlock;
 import com.hypixel.hytale.builtin.crafting.state.BenchState;
 import com.hypixel.hytale.builtin.crafting.state.ProcessingBenchState;
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -8,10 +9,13 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.farming.FarmingData;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.blockhealth.BlockHealthModule;
+import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.meta.BlockState;
 import com.hypixel.hytale.server.core.universe.world.meta.state.ItemContainerState;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -49,6 +53,7 @@ public class BetterLookAtBlockMapper {
         var store = storeRef.getStore();
         var world = store.getExternalData().getWorld();
         var worldChunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(targetBlockPosition.x, targetBlockPosition.z));
+        var worldTimeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
 
         if (worldChunk == null) {
             return targetDataComponents;
@@ -56,7 +61,7 @@ public class BetterLookAtBlockMapper {
 
         @SuppressWarnings("removal")
         var targetBlockFilter = worldChunk.getFiller(targetBlockPosition.x, targetBlockPosition.y, targetBlockPosition.z);
-        var targetBaseBlockPosition = targetBlockPosition;
+        var targetBaseBlockPosition = targetBlockPosition.clone();
 
         if (targetBlockFilter != 0) {
             var newX = targetBlockPosition.x - FillerBlockUtil.unpackX(targetBlockFilter);
@@ -65,6 +70,7 @@ public class BetterLookAtBlockMapper {
             targetBaseBlockPosition = new Vector3i(newX, newY, newZ);
         }
 
+        var targetBlockRef = worldChunk.getBlockComponentEntity(targetBaseBlockPosition.x, targetBaseBlockPosition.y, targetBaseBlockPosition.z);
         var targetBlockType = worldChunk.getBlockType(targetBaseBlockPosition.x, targetBaseBlockPosition.y, targetBaseBlockPosition.z);
         var targetBlockState = worldChunk.getState(targetBaseBlockPosition.x, targetBaseBlockPosition.y, targetBaseBlockPosition.z);
 
@@ -72,18 +78,22 @@ public class BetterLookAtBlockMapper {
             return targetDataComponents;
         }
 
+        var chunkStore = targetBlockRef != null ? targetBlockRef.getStore() : null;
+
         var item = targetBlockType.getItem();
-
-        if (item == null) {
-            return targetDataComponents;
-        }
-
+        var targetFarmingData = targetBlockType.getFarming();
+        var targetFarmingBlock = chunkStore != null ? chunkStore.getComponent(targetBlockRef, FarmingBlock.getComponentType()) : null;
 
         BetterLookAtBlockMapper.handleIcon(item, targetDataComponents);
         BetterLookAtBlockMapper.handleChest(targetBlockState, targetDataComponents);
         BetterLookAtBlockMapper.handleTitle(item, targetDataComponents);
         BetterLookAtBlockMapper.handleHealth(world, targetBaseBlockPosition, targetDataComponents);
         BetterLookAtBlockMapper.handlePlugin(item, targetDataComponents);
+        BetterLookAtBlockMapper.handleFarming(
+            targetFarmingData, targetFarmingBlock,
+            worldChunk, targetBaseBlockPosition,
+            worldTimeResource, targetDataComponents
+        );
         BetterLookAtBlockMapper.handleRecommendedTools(targetBlockType, targetDataComponents);
         BetterLookAtBlockMapper.handleProcessingBenchState(targetBlockState, targetDataComponents);
         BetterLookAtBlockMapper.handleBenchContainers(targetBlockState, targetDataComponents);
@@ -99,11 +109,19 @@ public class BetterLookAtBlockMapper {
         return targetDataComponents;
     }
 
-    private static void handleFuel(@Nonnull Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+    private static void handleFuel(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+        if (item == null) {
+            return;
+        }
+
         targetDataComponents.add(new BetterLookAtFuelComponent(item.getFuelQuality()));
     }
 
-    private static void handleIcon(@Nonnull Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+    private static void handleIcon(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+        if (item == null) {
+            return;
+        }
+
         targetDataComponents.add(new BetterLookAtBlockIconComponent(item.getId()));
     }
 
@@ -147,7 +165,11 @@ public class BetterLookAtBlockMapper {
         }
     }
 
-    private static void handleTitle(@Nonnull Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+    private static void handleTitle(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+        if (item == null) {
+            return;
+        }
+
         targetDataComponents.add(new BetterLookAtTitleComponent(Message.translation(item.getTranslationKey())));
     }
 
@@ -182,7 +204,11 @@ public class BetterLookAtBlockMapper {
         targetDataComponents.add(new BetterLookAtHealthComponent(health, maxHealth));
     }
 
-    private static void handlePlugin(@Nonnull Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+    private static void handlePlugin(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+        if (item == null) {
+            return;
+        }
+
         var id = item.getId();
         var plugin = BetterLookAtLoader.Block.getPlugin(id);
 
@@ -191,7 +217,78 @@ public class BetterLookAtBlockMapper {
         }
     }
 
-    private static void handleConsumable(@Nonnull Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+    // TODO(evandro): this code should be refactor
+    private static void handleFarming(
+        FarmingData farmingData,
+        FarmingBlock farmingBlock,
+        @Nonnull WorldChunk worldChunk,
+        @Nonnull Vector3i targetBlockPosition,
+        @Nonnull WorldTimeResource worldTimeResource,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
+        if (farmingData == null || farmingBlock == null) {
+            return;
+        }
+
+        var farmingDataStages = farmingData.getStages();
+
+        if (farmingDataStages == null) {
+            return;
+        }
+
+        var currentFarmingBlockStage = farmingBlock.getCurrentStageSet();
+
+        if (currentFarmingBlockStage == null) {
+            return;
+        }
+
+        var currentFarmingStages = farmingDataStages.get(currentFarmingBlockStage);
+
+        if (currentFarmingStages == null) {
+            return;
+        }
+
+        var currentGrowthProgress = farmingBlock.getGrowthProgress();
+        var currentGrowthProgressIndex = (int) currentGrowthProgress;
+
+        if (currentGrowthProgressIndex < 0) {
+            return;
+        }
+
+        var currentFarmingStage = currentFarmingStages[currentGrowthProgressIndex];
+
+        if (currentFarmingStage == null) {
+            return;
+        }
+
+        var farmingStageDuration = currentFarmingStage.getDuration();
+
+        if (farmingStageDuration == null) {
+            return;
+        }
+
+        var elapsedTime = BetterLookAtFarmingMapper.getElapsedTime(worldTimeResource, farmingBlock);
+        var stageDurationTime = BetterLookAtFarmingMapper.getStageDurationTime(
+            currentGrowthProgress, targetBlockPosition, farmingData, farmingStageDuration,
+            worldTimeResource, worldChunk, farmingBlock
+        );
+
+        BetterLookAtFarmingMapper.handleRemainingTime(elapsedTime, stageDurationTime, targetDataComponents);
+        BetterLookAtFarmingMapper.handleFarmingStages(
+            currentGrowthProgressIndex, stageDurationTime, elapsedTime,
+            currentFarmingStages, targetDataComponents);
+        BetterLookAtFarmingMapper.handleFarmingGrowthStatus(
+            worldChunk, worldTimeResource, targetBlockPosition, farmingData, targetDataComponents);
+        BetterLookAtFarmingMapper.handleFarmingCurrentStageInfo(
+            currentGrowthProgressIndex + 1, currentFarmingStages.length - 1, elapsedTime,
+            stageDurationTime, targetDataComponents);
+    }
+
+    private static void handleConsumable(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+        if (item == null) {
+            return;
+        }
+
         targetDataComponents.add(new BetterLookAtConsumableComponent(item.isConsumable()));
     }
 

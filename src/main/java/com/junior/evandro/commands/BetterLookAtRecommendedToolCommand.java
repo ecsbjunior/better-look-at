@@ -17,12 +17,14 @@ import com.junior.evandro.config.BetterLookAtScale;
 
 import javax.annotation.Nonnull;
 
-public class BetterLookAtChestCommand extends AbstractPlayerCommand {
+public class BetterLookAtRecommendedToolCommand extends AbstractPlayerCommand {
     private final OptionalArg<String> scaleArg;
     private final OptionalArg<String> visibilityArg;
 
-    public BetterLookAtChestCommand() {
-        super("chest", "This command manage chest HUD");
+    public BetterLookAtRecommendedToolCommand() {
+        super("recommended-tool", "This command manage recommended tool HUD");
+
+        this.addAliases("rt");
 
         @SuppressWarnings("unchecked")
         Validator<String>[] scaleValidators = new Validator[] {
@@ -39,7 +41,7 @@ public class BetterLookAtChestCommand extends AbstractPlayerCommand {
         };
 
         this.scaleArg = withOptionalArg(
-            "scale", "Change scale of chest, available values: xsm, extra-small, sm, small, md, medium, lg, large, xlg, extra-large", ArgTypes.STRING)
+            "scale", "Change scale of recommended tool, available values: xsm, extra-small, sm, small, md, medium, lg, large, xlg, extra-large", ArgTypes.STRING)
             .addValidator(new OrValidator<>(scaleValidators));
 
         @SuppressWarnings("unchecked")
@@ -47,7 +49,7 @@ public class BetterLookAtChestCommand extends AbstractPlayerCommand {
             new Validator[] { new EqualValidator<>("show"), new EqualValidator<>("hide") };
 
         this.visibilityArg = withOptionalArg(
-            "visibility", "Change visibility of chest, available values: show, hide", ArgTypes.STRING)
+            "visibility", "Change visibility of recommended tool, available values: show, hide", ArgTypes.STRING)
             .addValidator(new OrValidator<>(visibilityValidators));
     }
 
@@ -65,8 +67,8 @@ public class BetterLookAtChestCommand extends AbstractPlayerCommand {
 
         if (visibility != null) {
             switch (visibility) {
-                case "show" -> config.setShowChest(true);
-                case "hide" -> config.setShowChest(false);
+                case "show" -> config.setShowRecommendedTool(true);
+                case "hide" -> config.setShowRecommendedTool(false);
             }
         }
 
@@ -74,11 +76,11 @@ public class BetterLookAtChestCommand extends AbstractPlayerCommand {
 
         if (scale != null) {
             switch (scale) {
-                case "xsm", "extra-small" -> config.setChestScale(BetterLookAtScale.ExtraSmall);
-                case "sm", "small" -> config.setChestScale(BetterLookAtScale.Small);
-                case "md", "medium" -> config.setChestScale(BetterLookAtScale.Medium);
-                case "lg", "large" -> config.setChestScale(BetterLookAtScale.Large);
-                case "xlg", "extra-large" -> config.setChestScale(BetterLookAtScale.ExtraLarge);
+                case "xsm", "extra-small" -> config.setRecommendedToolScale(BetterLookAtScale.ExtraSmall);
+                case "sm", "small" -> config.setRecommendedToolScale(BetterLookAtScale.Small);
+                case "md", "medium" -> config.setRecommendedToolScale(BetterLookAtScale.Medium);
+                case "lg", "large" -> config.setRecommendedToolScale(BetterLookAtScale.Large);
+                case "xlg", "extra-large" -> config.setRecommendedToolScale(BetterLookAtScale.ExtraLarge);
             }
         }
 

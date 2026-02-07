@@ -1,0 +1,14 @@
+Group #BetterLookAtFarmingStages {
+  Anchor: (Height: 16);
+  Background: "../Assets/ProgressBarBg.png";
+  FlexWeight: 1;
+
+  ProgressBar #BetterLookAtFarmingStagesProgressBar {
+    BarTexturePath: "../../../Pages/Memories/MemoriesProgress/MemoriesBarFill.png";
+    EffectTexturePath: "../Assets/ProgressBarTipOfTheBar.png";
+  }
+
+  ProgressBar #BetterLookAtFarmingStagesProgressBarTexture {
+    BarTexturePath: "../Assets/ProgressBarTexture.png";
+  }
+}

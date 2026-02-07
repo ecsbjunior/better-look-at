@@ -50,9 +50,9 @@ public class BetterLookAtPositionCommand extends AbstractPlayerCommand {
         var positionValue = this.positionArg.get(commandContext);
 
         var position = switch (positionValue) {
-            case "top-left" -> BetterLookAtPosition.TOP_LEFT;
-            case "top-center" -> BetterLookAtPosition.TOP_CENTER;
-            case "top-right" -> BetterLookAtPosition.TOP_RIGHT;
+            case "top-left" -> BetterLookAtPosition.TopLeft;
+            case "top-center" -> BetterLookAtPosition.TopCenter;
+            case "top-right" -> BetterLookAtPosition.TopRight;
             default -> null;
         };
 

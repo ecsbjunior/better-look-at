@@ -1,0 +1,5 @@
+ItemGrid #BetterLookAtRecommendedTools {
+  Style: (SlotSize: 44, SlotIconSize: 44, SlotSpacing: 0, SlotBackground: "../../../Common/BlockSelectorSlotBackground.png");
+  SlotsPerRow: 8;
+  RenderItemQualityBackground: true;
+}

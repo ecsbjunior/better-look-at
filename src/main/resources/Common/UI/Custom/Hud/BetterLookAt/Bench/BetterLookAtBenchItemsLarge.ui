@@ -1,0 +1,7 @@
+ItemGrid #BetterLookAtDataBenchItems {
+    Style: (SlotSize: 52, SlotIconSize: 52, SlotSpacing: 2, SlotBackground: "../../../Common/BlockSelectorSlotBackground.png");
+    Padding: (Top: 12, Bottom: 8, Left: 8);
+    SlotsPerRow: 1;
+    RenderItemQualityBackground: true;
+    Background: (TexturePath: "../../../Pages/Memories/ContainerBackground.png");
+}

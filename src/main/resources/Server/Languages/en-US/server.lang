@@ -8,6 +8,13 @@ BetterLookAt.invulnerable=Invulnerable
 BetterLookAt.benchFuels=FUELS
 BetterLookAt.benchInputs=INPUTS
 BetterLookAt.benchOutputs=OUTPUTS
+BetterLookAt.farming.currentStageInfo.stage=Stage
+BetterLookAt.farming.remainingTime.remainingTime=Remaining Time
+BetterLookAt.farming.lightStatus.light=Light
+BetterLookAt.farming.waterStatus.water=Water
+BetterLookAt.farming.fertilizerStatus.fertilizer=Fertilizer
+BetterLookAt.farming.growthStatus.ok=Ok
+BetterLookAt.farming.growthStatus.missing=Missing
 
 BetterLookAt.invalidArgumentValue=The {argument} argument value ({value}) is not valid
 BetterLookAt.onlyPlayersCanUseThisCommand=Only players can use {command} commands

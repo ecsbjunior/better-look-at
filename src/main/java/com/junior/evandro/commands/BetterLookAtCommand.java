@@ -25,6 +25,7 @@ public class BetterLookAtCommand extends AbstractAsyncCommand {
         this.addSubCommand(new BetterLookAtBenchCommand());
         this.addSubCommand(new BetterLookAtChestCommand());
         this.addSubCommand(new BetterLookAtPositionCommand());
+        this.addSubCommand(new BetterLookAtRecommendedToolCommand());
         this.addSubCommand(new BetterLookAtCommand.ShowCommand());
         this.addSubCommand(new BetterLookAtCommand.HideCommand());
 

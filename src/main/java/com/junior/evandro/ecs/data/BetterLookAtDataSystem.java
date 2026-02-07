@@ -41,16 +41,22 @@ public class BetterLookAtDataSystem implements IBetterLookAtSystem {
                 dataEntity.getComponent(BetterLookAtTitleComponent.class),
                 dataEntity.getComponent(BetterLookAtPluginComponent.class),
                 dataEntity.getComponent(BetterLookAtHealthComponent.class),
-                dataEntity.getComponent(BetterLookAtBenchFuelsComponent.class),
                 dataEntity.getComponent(BetterLookAtBenchTierComponent.class),
                 dataEntity.getComponent(BetterLookAtBlockIconComponent.class),
+                dataEntity.getComponent(BetterLookAtBenchFuelsComponent.class),
                 dataEntity.getComponent(BetterLookAtConsumableComponent.class),
                 dataEntity.getComponent(BetterLookAtEntityIconComponent.class),
                 dataEntity.getComponent(BetterLookAtBenchInputsComponent.class),
                 dataEntity.getComponent(BetterLookAtBenchOutputsComponent.class),
                 dataEntity.getComponent(BetterLookAtInvulnerableComponent.class),
+                dataEntity.getComponent(BetterLookAtFarmingStagesComponent.class),
                 dataEntity.getComponent(BetterLookAtRecommendedToolsComponent.class),
-                dataEntity.getComponent(BetterLookAtProcessingBenchStateComponent.class)
+                dataEntity.getComponent(BetterLookAtFarmingLightStatusComponent.class),
+                dataEntity.getComponent(BetterLookAtFarmingWaterStatusComponent.class),
+                dataEntity.getComponent(BetterLookAtProcessingBenchStateComponent.class),
+                dataEntity.getComponent(BetterLookAtFarmingRemainingTimeComponent.class),
+                dataEntity.getComponent(BetterLookAtFarmingCurrentStageInfoComponent.class),
+                dataEntity.getComponent(BetterLookAtFarmingFertilizerStatusComponent.class)
             );
 
             BetterLookAt.HUD_MANAGER.show(player, playerRef, record);
