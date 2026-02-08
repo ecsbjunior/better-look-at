@@ -136,13 +136,23 @@ public class BetterLookAtBlockMapper {
         if (targetBlockState instanceof ItemContainerState itemContainerState) {
             var chest = itemContainerState.getItemContainer();
 
+            if (chest == null) {
+                return;
+            }
+
             var chestItems = new ArrayList<ItemStack>();
 
             for (var item : chest.toProtocolMap().values()) {
                 var matchedChestItemIndex = -1;
 
                 for (var i = 0; i < chestItems.size(); i++) {
-                    if (chestItems.get(i).getItemId().equals(item.itemId)) {
+                    var chestItem = chestItems.get(i);
+
+                    if (chestItem == null) {
+                        continue;
+                    }
+
+                    if (chestItem.getItemId().equals(item.itemId)) {
                         matchedChestItemIndex = i;
                         break;
                     }
@@ -150,7 +160,13 @@ public class BetterLookAtBlockMapper {
 
                 if (matchedChestItemIndex > -1) {
                     var matchedChestItem = chestItems.get(matchedChestItemIndex);
+
+                    if (matchedChestItem == null) {
+                        continue;
+                    }
+
                     chestItems.set(matchedChestItemIndex, matchedChestItem.withQuantity(matchedChestItem.getQuantity() + item.quantity));
+
                     continue;
                 }
 
@@ -370,7 +386,7 @@ public class BetterLookAtBlockMapper {
                     var fuel = fuelsContainer.getItemStack(index);
 
                     if (fuel != null) {
-                        fuels.add(fuel);
+                        fuels.add(BetterLookAtItemStackUtils.shallowClone(fuel));
                     }
                 }
 
@@ -388,7 +404,7 @@ public class BetterLookAtBlockMapper {
                     var input = inputsContainer.getItemStack(index);
 
                     if (input != null) {
-                        inputs.add(input);
+                        inputs.add(BetterLookAtItemStackUtils.shallowClone(input));
                     }
                 }
 
@@ -406,7 +422,7 @@ public class BetterLookAtBlockMapper {
                     var output = outputsContainer.getItemStack(index);
 
                     if (output != null) {
-                        outputs.add(output);
+                        outputs.add(BetterLookAtItemStackUtils.shallowClone(output));
                     }
                 }
 
