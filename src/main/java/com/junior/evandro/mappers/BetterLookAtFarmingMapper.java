@@ -3,17 +3,12 @@ package com.junior.evandro.mappers;
 import com.hypixel.hytale.builtin.adventure.farming.config.modifiers.FertilizerGrowthModifierAsset;
 import com.hypixel.hytale.builtin.adventure.farming.config.modifiers.LightLevelGrowthModifierAsset;
 import com.hypixel.hytale.builtin.adventure.farming.config.modifiers.WaterGrowthModifierAsset;
-import com.hypixel.hytale.builtin.adventure.farming.states.FarmingBlock;
 import com.hypixel.hytale.builtin.adventure.farming.states.TilledSoilBlock;
 import com.hypixel.hytale.math.util.HashUtil;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.Range;
 import com.hypixel.hytale.protocol.Rangef;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.farming.FarmingData;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.farming.FarmingStageData;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.farming.GrowthModifierAsset;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.junior.evandro.ecs.IBetterLookAtComponent;
 import com.junior.evandro.ecs.data.BetterLookAtFarmingGrowthStatus;
 import com.junior.evandro.ecs.data.components.*;
@@ -33,27 +28,30 @@ public class BetterLookAtFarmingMapper {
     }
 
     public static void handleFarmingStages(
-        int currentStageIndex,
-        long totalTimeInSeconds,
-        long elapsedTimeInSeconds,
-        @Nonnull FarmingStageData[] stages,
+        @Nonnull BetterLookAtBlockContext context,
+        long elapsedTime,
+        long stageDurationTime,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
+        if (context.farming == null) {
+            return;
+        }
+
         var index = 0;
         var stagesComponent = new ArrayList<BetterLookAtFarmingStageComponent>();
 
         // Concluded States
-        while (index < currentStageIndex) {
+        while (index < context.farming.growthProgressIndex()) {
             stagesComponent.add(new BetterLookAtFarmingStageComponent(1, 1));
             index++;
         }
 
-        var currentStage = new BetterLookAtFarmingStageComponent(elapsedTimeInSeconds, totalTimeInSeconds);
+        var currentStage = new BetterLookAtFarmingStageComponent(elapsedTime, stageDurationTime);
         stagesComponent.add(currentStage);
         targetDataComponents.add(currentStage);
 
         // Waiting Stages
-        while (++index < stages.length - 1) {
+        while (++index < context.farming.stages().length - 1) {
             stagesComponent.add(new BetterLookAtFarmingStageComponent(0, 1));
         }
 
@@ -61,13 +59,14 @@ public class BetterLookAtFarmingMapper {
     }
 
     public static void handleFarmingGrowthStatus(
-        @Nonnull WorldChunk worldChunk,
-        WorldTimeResource worldTimeResource,
-        Vector3i blockPosition,
-        FarmingData farmingData,
+        @Nonnull BetterLookAtBlockContext context,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        var growthModifiers = farmingData.getGrowthModifiers();
+        if (context.farming == null) {
+            return;
+        }
+
+        var growthModifiers = context.farming.data().getGrowthModifiers();
 
         if (growthModifiers == null) {
             return;
@@ -82,17 +81,17 @@ public class BetterLookAtFarmingMapper {
 
             switch (growthModifierAsset) {
                 case WaterGrowthModifierAsset water -> {
-                    var hasWater = BetterLookAtFarmingMapper.hasWater(worldChunk, blockPosition, worldTimeResource);
+                    var hasWater = BetterLookAtFarmingMapper.hasWater(context);
                     var growthStatus = hasWater ? BetterLookAtFarmingGrowthStatus.Ok : BetterLookAtFarmingGrowthStatus.Missing;
                     targetDataComponents.add(new BetterLookAtFarmingWaterStatusComponent(growthStatus, water.getModifier()));
                 }
                 case FertilizerGrowthModifierAsset fertilizer -> {
-                    var hasFertilizer = BetterLookAtFarmingMapper.hasFertilizer(worldChunk, blockPosition);
+                    var hasFertilizer = BetterLookAtFarmingMapper.hasFertilizer(context);
                     var growthStatus = hasFertilizer ? BetterLookAtFarmingGrowthStatus.Ok : BetterLookAtFarmingGrowthStatus.Missing;
                     targetDataComponents.add(new BetterLookAtFarmingFertilizerStatusComponent(growthStatus, fertilizer.getModifier()));
                 }
                 case LightLevelGrowthModifierAsset lightLevel -> {
-                    var hasLight = BetterLookAtFarmingMapper.hasLight(worldChunk, blockPosition, worldTimeResource, lightLevel);
+                    var hasLight = BetterLookAtFarmingMapper.hasLight(context, lightLevel);
                     var growthStatus = hasLight ? BetterLookAtFarmingGrowthStatus.Ok : BetterLookAtFarmingGrowthStatus.Missing;
                     targetDataComponents.add(new BetterLookAtFarmingLightStatusComponent(growthStatus, lightLevel.getModifier()));
                 }
@@ -104,47 +103,58 @@ public class BetterLookAtFarmingMapper {
     }
 
     public static void handleFarmingCurrentStageInfo(
-        int stage,
-        int maxStage,
+        @Nonnull BetterLookAtBlockContext context,
         long elapsedTime,
         long stageDurationTime,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        targetDataComponents.add(
-            new BetterLookAtFarmingCurrentStageInfoComponent(stage, maxStage, elapsedTime, stageDurationTime));
+        if (context.farming == null) {
+            return;
+        }
+
+        targetDataComponents.add(new BetterLookAtFarmingCurrentStageInfoComponent(
+            context.farming.growthProgressIndex() + 1,
+            context.farming.stages().length - 1,
+            elapsedTime,
+            stageDurationTime
+        ));
     }
 
-    public static long getElapsedTime(
-        WorldTimeResource worldTimeResource,
-        @Nonnull FarmingBlock farmingBlock
-    ) {
-        return worldTimeResource.getGameTime().getEpochSecond() - farmingBlock.getLastTickGameTime().getEpochSecond();
+    public static long getElapsedTime(@Nonnull BetterLookAtBlockContext context) {
+        if (context.farming == null) {
+            return 0;
+        }
+
+        return
+            context.worldTimeResource.getGameTime().getEpochSecond() -
+            context.farming.block().getLastTickGameTime().getEpochSecond();
     }
 
-    public static long getStageDurationTime(
-        float growthProgress,
-        Vector3i blockPosition,
-        FarmingData farmingData,
-        Rangef stageDurationRange,
-        WorldTimeResource worldTimeResource,
-        @Nonnull WorldChunk worldChunk,
-        @Nonnull FarmingBlock farmingBlock
-    ) {
-        var random = HashUtil.random(farmingBlock.getGeneration(), blockPosition.x, blockPosition.y, blockPosition.z);
-        var baseTotalDurationTime = stageDurationRange.min + (stageDurationRange.max - stageDurationRange.min) * random;
-        var baseStageDurationTime = Math.round(baseTotalDurationTime * (1.0 - growthProgress % 1.0));
-        var growthMultiplier =
-            BetterLookAtFarmingMapper.getGrowthModifier(worldChunk, worldTimeResource, blockPosition, farmingData);
+    public static long getStageDurationTime(@Nonnull BetterLookAtBlockContext context) {
+        if (context.farming == null) {
+            return 0;
+        }
+
+        var stageDuration = context.farming.currentStage().getDuration();
+
+        if (stageDuration == null) {
+            return 0;
+        }
+
+        var random = HashUtil.random(context.farming.block().getGeneration(), context.blockPosition.x, context.blockPosition.y, context.blockPosition.z);
+        var baseTotalDurationTime = stageDuration.min + (stageDuration.max - stageDuration.min) * random;
+        var baseStageDurationTime = Math.round(baseTotalDurationTime * (1.0 - context.farming.growthProgress() % 1.0));
+        var growthMultiplier = BetterLookAtFarmingMapper.getGrowthModifier(context);
+
         return Math.round(baseStageDurationTime / growthMultiplier);
     }
 
-    private static double getGrowthModifier(
-        @Nonnull WorldChunk worldChunk,
-        WorldTimeResource worldTimeResource,
-        Vector3i blockPosition,
-        FarmingData farmingData
-    ) {
-        var growthModifiers = farmingData.getGrowthModifiers();
+    private static double getGrowthModifier(@Nonnull BetterLookAtBlockContext context) {
+        if (context.farming == null) {
+            return 0.0;
+        }
+
+        var growthModifiers = context.farming.data().getGrowthModifiers();
         var growthMultiplier = 1.0;
 
         if (growthModifiers == null) {
@@ -152,91 +162,76 @@ public class BetterLookAtFarmingMapper {
         }
 
         for (var growthModifier : growthModifiers) {
-            var growthModifierAsset = GrowthModifierAsset.getAssetMap().getAsset(growthModifier);
-
             growthMultiplier *= handleGrowthModifierAsset(
-                worldChunk, blockPosition,
-                worldTimeResource, growthModifierAsset
-            );
+                context, GrowthModifierAsset.getAssetMap().getAsset(growthModifier));
         }
 
         return growthMultiplier;
     }
 
     private static double handleGrowthModifierAsset(
-        WorldChunk worldChunk,
-        Vector3i blockPosition,
-        WorldTimeResource worldTimeResource,
+        @Nonnull BetterLookAtBlockContext context,
         GrowthModifierAsset growthModifierAsset
     ) {
         return switch (growthModifierAsset) {
             case WaterGrowthModifierAsset waterGrowthModifier ->
-                handleWaterGrowthModifier(worldChunk, blockPosition, worldTimeResource, waterGrowthModifier);
+                handleWaterGrowthModifier(context, waterGrowthModifier);
             case FertilizerGrowthModifierAsset fertilizerGrowthModifier ->
-                handleFertilizerGrowthModifier(worldChunk, blockPosition, fertilizerGrowthModifier);
+                handleFertilizerGrowthModifier(context, fertilizerGrowthModifier);
             case LightLevelGrowthModifierAsset lightLevelGrowthModifier ->
-                handleLightLevelGrowthModifier(worldChunk, blockPosition, worldTimeResource, lightLevelGrowthModifier);
+                handleLightLevelGrowthModifier(context, lightLevelGrowthModifier);
             case null, default -> 1.0;
         };
     }
 
     private static double handleWaterGrowthModifier(
-        WorldChunk worldChunk,
-        Vector3i blockPosition,
-        WorldTimeResource worldTimeResource,
+        @Nonnull BetterLookAtBlockContext context,
         WaterGrowthModifierAsset waterGrowthModifier
     ) {
         var modifier = 1.0;
 
-        if (BetterLookAtFarmingMapper.hasWater(worldChunk, blockPosition, worldTimeResource)) {
+        if (BetterLookAtFarmingMapper.hasWater(context)) {
             modifier = waterGrowthModifier.getModifier();
         }
 
         return modifier;
     }
 
-    private static boolean hasWater(
-        WorldChunk worldChunk,
-        Vector3i blockPosition,
-        WorldTimeResource worldTimeResource
-    ) {
-        var soil = BetterLookAtFarmingMapper.getSoil(worldChunk, blockPosition);
+    private static boolean hasWater(@Nonnull BetterLookAtBlockContext context) {
+        var soil = BetterLookAtFarmingMapper.getSoil(context);
 
         if (soil == null) {
             return false;
         }
 
-        var gameTime = worldTimeResource.getGameTime();
+        var gameTime = context.worldTimeResource.getGameTime();
         var isSoilWatered = soil.getWateredUntil() != null && gameTime.isBefore(soil.getWateredUntil());
 
         return soil.hasExternalWater() || isSoilWatered;
     }
 
     private static double handleFertilizerGrowthModifier(
-        WorldChunk worldChunk,
-        Vector3i blockPosition,
+        @Nonnull BetterLookAtBlockContext context,
         FertilizerGrowthModifierAsset fertilizerGrowthModifier
     ) {
         var modifier = 1.0;
 
-        if (BetterLookAtFarmingMapper.hasFertilizer(worldChunk, blockPosition)) {
+        if (BetterLookAtFarmingMapper.hasFertilizer(context)) {
             modifier = fertilizerGrowthModifier.getModifier();
         }
 
         return modifier;
     }
 
-    private static boolean hasFertilizer(
-        WorldChunk worldChunk,
-        Vector3i blockPosition
-    ) {
-        var soil = BetterLookAtFarmingMapper.getSoil(worldChunk, blockPosition);
+    private static boolean hasFertilizer(@Nonnull BetterLookAtBlockContext context) {
+        var soil = BetterLookAtFarmingMapper.getSoil(context);
 
         return soil != null && soil.isFertilized();
     }
 
-    private static TilledSoilBlock getSoil(WorldChunk worldChunk, Vector3i blockPosition) {
-        var chunkStoreRef = worldChunk.getBlockComponentEntity(blockPosition.x, blockPosition.y - 1, blockPosition.z);
+    private static TilledSoilBlock getSoil(@Nonnull BetterLookAtBlockContext context) {
+        var chunkStoreRef = context.worldChunk.getBlockComponentEntity(
+            context.blockPosition.x, context.blockPosition.y - 1, context.blockPosition.z);
 
         if (chunkStoreRef == null) {
             return null;
@@ -246,14 +241,12 @@ public class BetterLookAtFarmingMapper {
     }
 
     private static double handleLightLevelGrowthModifier(
-        WorldChunk worldChunk,
-        Vector3i blockPosition,
-        WorldTimeResource worldTimeResource,
+        @Nonnull BetterLookAtBlockContext context,
         LightLevelGrowthModifierAsset lightLevelGrowthModifier
     ) {
         var modifier = 1.0;
 
-        if (BetterLookAtFarmingMapper.hasLight(worldChunk, blockPosition, worldTimeResource, lightLevelGrowthModifier)) {
+        if (BetterLookAtFarmingMapper.hasLight(context, lightLevelGrowthModifier)) {
             modifier = lightLevelGrowthModifier.getModifier();
         }
 
@@ -261,24 +254,22 @@ public class BetterLookAtFarmingMapper {
     }
 
     private static boolean hasLight(
-        WorldChunk worldChunk,
-        Vector3i blockPosition,
-        WorldTimeResource worldTimeResource,
+        @Nonnull BetterLookAtBlockContext context,
         LightLevelGrowthModifierAsset lightLevelGrowthModifier
     ) {
-        var blockChunk = worldChunk.getBlockChunk();
+        var blockChunk = context.worldChunk.getBlockChunk();
 
         if (blockChunk == null) {
             return false;
         }
 
-        var skyLight = blockChunk.getSkyLight(blockPosition.x, blockPosition.y, blockPosition.z);
+        var skyLight = blockChunk.getSkyLight(context.blockPosition.x, context.blockPosition.y, context.blockPosition.z);
 
-        var redLight = blockChunk.getRedBlockLight(blockPosition.x, blockPosition.y, blockPosition.z);
-        var greenLight = blockChunk.getGreenBlockLight(blockPosition.x, blockPosition.y, blockPosition.z);
-        var blueLight = blockChunk.getBlueBlockLight(blockPosition.x, blockPosition.y, blockPosition.z);
+        var redLight = blockChunk.getRedBlockLight(context.blockPosition.x, context.blockPosition.y, context.blockPosition.z);
+        var greenLight = blockChunk.getGreenBlockLight(context.blockPosition.x, context.blockPosition.y, context.blockPosition.z);
+        var blueLight = blockChunk.getBlueBlockLight(context.blockPosition.x, context.blockPosition.y, context.blockPosition.z);
 
-        var hasSunLight = hasSunLight(skyLight, worldTimeResource, lightLevelGrowthModifier);
+        var hasSunLight = hasSunLight(skyLight, context.worldTimeResource, lightLevelGrowthModifier);
         var hasArtificialLight = hasArtificialLight(redLight, greenLight, blueLight, lightLevelGrowthModifier);
 
         return hasSunLight || hasArtificialLight;

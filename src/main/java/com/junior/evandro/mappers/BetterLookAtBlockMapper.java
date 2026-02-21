@@ -1,25 +1,11 @@
 package com.junior.evandro.mappers;
 
-import com.hypixel.hytale.builtin.adventure.farming.states.FarmingBlock;
-import com.hypixel.hytale.builtin.crafting.state.BenchState;
-import com.hypixel.hytale.builtin.crafting.state.ProcessingBenchState;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
-import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.farming.FarmingData;
-import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.blockhealth.BlockHealthModule;
-import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
-import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
-import com.hypixel.hytale.server.core.universe.world.meta.BlockState;
-import com.hypixel.hytale.server.core.universe.world.meta.state.ItemContainerState;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import com.junior.evandro.BetterLookAt;
 import com.junior.evandro.ecs.IBetterLookAtComponent;
 import com.junior.evandro.ecs.data.components.*;
@@ -42,158 +28,126 @@ public class BetterLookAtBlockMapper {
             return targetDataComponents;
         }
 
-        @SuppressWarnings("removal")
-        var targetBlockFilter = context.worldChunk.getFiller(context.blockPosition.x, context.blockPosition.y, context.blockPosition.z);
-        var targetBaseBlockPosition = context.blockPosition.clone();
-
-        if (targetBlockFilter != 0) {
-            var newX = context.blockPosition.x - FillerBlockUtil.unpackX(targetBlockFilter);
-            var newY = context.blockPosition.y - FillerBlockUtil.unpackY(targetBlockFilter);
-            var newZ = context.blockPosition.z - FillerBlockUtil.unpackZ(targetBlockFilter);
-            targetBaseBlockPosition = new Vector3i(newX, newY, newZ);
-        }
-
-        var targetBlockRef = context.worldChunk.getBlockComponentEntity(targetBaseBlockPosition.x, targetBaseBlockPosition.y, targetBaseBlockPosition.z);
-        var targetBlockType = context.worldChunk.getBlockType(targetBaseBlockPosition.x, targetBaseBlockPosition.y, targetBaseBlockPosition.z);
-        var targetBlockState = context.worldChunk.getState(targetBaseBlockPosition.x, targetBaseBlockPosition.y, targetBaseBlockPosition.z);
-
-        if (targetBlockType == null) {
-            return targetDataComponents;
-        }
-
-        var chunkStore = targetBlockRef != null ? targetBlockRef.getStore() : null;
-
-        var item = targetBlockType.getItem();
-        var targetFarmingData = targetBlockType.getFarming();
-        var targetFarmingBlock = chunkStore != null ? chunkStore.getComponent(targetBlockRef, FarmingBlock.getComponentType()) : null;
-
-        BetterLookAtBlockMapper.handleIcon(item, targetDataComponents);
-        BetterLookAtBlockMapper.handleChest(targetBlockState, targetDataComponents);
-        BetterLookAtBlockMapper.handleTitle(item, targetDataComponents);
-        BetterLookAtBlockMapper.handleHealth(context.world, targetBaseBlockPosition, targetDataComponents);
-        BetterLookAtBlockMapper.handlePlugin(item, targetDataComponents);
-        BetterLookAtBlockMapper.handleFarming(
-            targetFarmingData, targetFarmingBlock,
-            context.worldChunk, targetBaseBlockPosition,
-            context.worldTimeResource, targetDataComponents
-        );
-        BetterLookAtBlockMapper.handleRecommendedTools(targetBlockType, targetDataComponents);
-        BetterLookAtBlockMapper.handleProcessingBenchState(targetBlockState, targetDataComponents);
-        BetterLookAtBlockMapper.handleBenchContainers(targetBlockState, targetDataComponents);
+        BetterLookAtBlockMapper.handleIcon(context, targetDataComponents);
+        BetterLookAtBlockMapper.handleChest(context, targetDataComponents);
+        BetterLookAtBlockMapper.handleTitle(context, targetDataComponents);
+        BetterLookAtBlockMapper.handleHealth(context, targetDataComponents);
+        BetterLookAtBlockMapper.handlePlugin(context, targetDataComponents);
+        BetterLookAtBlockMapper.handleFarming(context, targetDataComponents);
+        BetterLookAtBlockMapper.handleRecommendedTools(context, targetDataComponents);
+        BetterLookAtBlockMapper.handleProcessingBenchState(context, targetDataComponents);
+        BetterLookAtBlockMapper.handleBenchContainers(context, targetDataComponents);
 
         var dataInteraction = BetterLookAtMovementStateUtil.toDataInteraction(context.storeRef, commandBuffer);
 
         if (dataInteraction.equals(BetterLookAtDataInteraction.SHOW_DETAILED_DATA)) {
-            BetterLookAtBlockMapper.handleFuel(item, targetDataComponents);
-            BetterLookAtBlockMapper.handleBenchTier(targetBlockState, targetDataComponents);
-            BetterLookAtBlockMapper.handleConsumable(item, targetDataComponents);
+            BetterLookAtBlockMapper.handleFuel(context, targetDataComponents);
+            BetterLookAtBlockMapper.handleBenchTier(context, targetDataComponents);
+            BetterLookAtBlockMapper.handleConsumable(context, targetDataComponents);
         }
 
         return targetDataComponents;
     }
 
-    private static void handleFuel(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
-        if (item == null) {
-            return;
+    private static void handleFuel(
+        @Nonnull BetterLookAtBlockContext blockContext,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
+        if (blockContext.item != null) {
+            targetDataComponents.add(new BetterLookAtFuelComponent(blockContext.item.getFuelQuality()));
         }
-
-        targetDataComponents.add(new BetterLookAtFuelComponent(item.getFuelQuality()));
     }
 
-    private static void handleIcon(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
-        if (item == null) {
-            return;
+    private static void handleIcon(
+        @Nonnull BetterLookAtBlockContext blockContext,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
+        if (blockContext.item != null) {
+            targetDataComponents.add(new BetterLookAtBlockIconComponent(blockContext.item.getId()));
         }
-
-        targetDataComponents.add(new BetterLookAtBlockIconComponent(item.getId()));
     }
 
     public static void handleChest(
-        @SuppressWarnings("removal") BlockState targetBlockState,
+        @Nonnull BetterLookAtBlockContext blockContext,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        if (!BetterLookAt.CONFIG.get().getShowChest()) {
+        if (blockContext.itemContainerState == null || !BetterLookAt.CONFIG.get().getShowChest()) {
             return;
         }
 
-        if (targetBlockState instanceof ItemContainerState itemContainerState) {
-            var chest = itemContainerState.getItemContainer();
+        var chest = blockContext.itemContainerState.getItemContainer();
 
-            if (chest == null) {
-                return;
-            }
+        if (chest == null) {
+            return;
+        }
 
-            var chestItems = new ArrayList<ItemStack>();
+        var chestItems = new ArrayList<ItemStack>();
 
-            for (var item : chest.toProtocolMap().values()) {
-                var matchedChestItemIndex = -1;
+        for (var item : chest.toProtocolMap().values()) {
+            var matchedChestItemIndex = -1;
 
-                for (var i = 0; i < chestItems.size(); i++) {
-                    var chestItem = chestItems.get(i);
+            for (var i = 0; i < chestItems.size(); i++) {
+                var chestItem = chestItems.get(i);
 
-                    if (chestItem == null) {
-                        continue;
-                    }
-
-                    if (chestItem.getItemId().equals(item.itemId)) {
-                        matchedChestItemIndex = i;
-                        break;
-                    }
-                }
-
-                if (matchedChestItemIndex > -1) {
-                    var matchedChestItem = chestItems.get(matchedChestItemIndex);
-
-                    if (matchedChestItem == null) {
-                        continue;
-                    }
-
-                    chestItems.set(matchedChestItemIndex, matchedChestItem.withQuantity(matchedChestItem.getQuantity() + item.quantity));
-
+                if (chestItem == null) {
                     continue;
                 }
 
-                chestItems.add(new ItemStack(item.itemId, item.quantity));
+                if (chestItem.getItemId().equals(item.itemId)) {
+                    matchedChestItemIndex = i;
+                    break;
+                }
             }
 
-            if (chestItems.isEmpty()) {
-                return;
+            if (matchedChestItemIndex > -1) {
+                var matchedChestItem = chestItems.get(matchedChestItemIndex);
+
+                if (matchedChestItem == null) {
+                    continue;
+                }
+
+                chestItems.set(matchedChestItemIndex, matchedChestItem.withQuantity(matchedChestItem.getQuantity() + item.quantity));
+
+                continue;
             }
 
-            targetDataComponents.add(new BetterLookAtChestComponent(chestItems));
+            chestItems.add(new ItemStack(item.itemId, item.quantity));
         }
-    }
 
-    private static void handleTitle(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
-        if (item == null) {
+        if (chestItems.isEmpty()) {
             return;
         }
 
-        targetDataComponents.add(new BetterLookAtTitleComponent(Message.translation(item.getTranslationKey())));
+        targetDataComponents.add(new BetterLookAtChestComponent(chestItems));
+    }
+
+    private static void handleTitle(
+        @Nonnull BetterLookAtBlockContext blockContext,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
+        if (blockContext.item != null) {
+            targetDataComponents.add(new BetterLookAtTitleComponent(
+                Message.translation(blockContext.item.getTranslationKey())));
+        }
+
     }
 
     private static void handleHealth(
-        @Nonnull World world,
-        @Nonnull Vector3i targetBlockPosition,
+        @Nonnull BetterLookAtBlockContext blockContext,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        // TODO(evandro): found way to verify flowers and pickable things
-
-        var chunkIndex = ChunkUtil.indexChunkFromBlock(targetBlockPosition.x, targetBlockPosition.z);
-        var chunkStore = world.getChunkStore().getStore();
-        var chunkStoreRef = chunkStore.getExternalData().getChunkReference(chunkIndex);
-
-        if (chunkStoreRef == null) {
+        if (blockContext.chunkStore == null || blockContext.chunkStoreRef == null) {
             return;
         }
 
-        var blockHealthComponent = chunkStore.getComponent(chunkStoreRef, BlockHealthModule.get().getBlockHealthChunkComponentType());
+        var blockHealthComponent = blockContext.chunkStore.getComponent(
+            blockContext.chunkStoreRef, BlockHealthModule.get().getBlockHealthChunkComponentType());
 
         if (blockHealthComponent == null) {
             return;
         }
 
-        var health = blockHealthComponent.getBlockHealth(targetBlockPosition);
+        var health = blockHealthComponent.getBlockHealth(blockContext.baseBlockPosition);
         var maxHealth = 1;
 
         if (health == maxHealth || maxHealth < health) {
@@ -203,97 +157,53 @@ public class BetterLookAtBlockMapper {
         targetDataComponents.add(new BetterLookAtHealthComponent(health, maxHealth));
     }
 
-    private static void handlePlugin(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
-        if (item == null) {
+    private static void handlePlugin(
+        @Nonnull BetterLookAtBlockContext blockContext,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
+        if (blockContext.item == null) {
             return;
         }
 
-        var id = item.getId();
-        var plugin = BetterLookAtLoader.Block.getPlugin(id);
+        var plugin = BetterLookAtLoader.Block.getPlugin(blockContext.item.getId());
 
         if (plugin != null) {
             targetDataComponents.add(new BetterLookAtPluginComponent(plugin));
         }
     }
 
-    // TODO(evandro): this code should be refactor
     private static void handleFarming(
-        FarmingData farmingData,
-        FarmingBlock farmingBlock,
-        @Nonnull WorldChunk worldChunk,
-        @Nonnull Vector3i targetBlockPosition,
-        @Nonnull WorldTimeResource worldTimeResource,
+        @Nonnull BetterLookAtBlockContext blockContext,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        if (farmingData == null || farmingBlock == null) {
+        if (blockContext.farming == null) {
             return;
         }
 
-        var farmingDataStages = farmingData.getStages();
-
-        if (farmingDataStages == null) {
-            return;
-        }
-
-        var currentFarmingBlockStage = farmingBlock.getCurrentStageSet();
-
-        if (currentFarmingBlockStage == null) {
-            return;
-        }
-
-        var currentFarmingStages = farmingDataStages.get(currentFarmingBlockStage);
-
-        if (currentFarmingStages == null) {
-            return;
-        }
-
-        var currentGrowthProgress = farmingBlock.getGrowthProgress();
-        var currentGrowthProgressIndex = (int) currentGrowthProgress;
-
-        if (currentGrowthProgressIndex < 0) {
-            return;
-        }
-
-        var currentFarmingStage = currentFarmingStages[currentGrowthProgressIndex];
-
-        if (currentFarmingStage == null) {
-            return;
-        }
-
-        var farmingStageDuration = currentFarmingStage.getDuration();
-
-        if (farmingStageDuration == null) {
-            return;
-        }
-
-        var elapsedTime = BetterLookAtFarmingMapper.getElapsedTime(worldTimeResource, farmingBlock);
-        var stageDurationTime = BetterLookAtFarmingMapper.getStageDurationTime(
-            currentGrowthProgress, targetBlockPosition, farmingData, farmingStageDuration,
-            worldTimeResource, worldChunk, farmingBlock
-        );
+        var elapsedTime = BetterLookAtFarmingMapper.getElapsedTime(blockContext);
+        var stageDurationTime = BetterLookAtFarmingMapper.getStageDurationTime(blockContext);
 
         BetterLookAtFarmingMapper.handleRemainingTime(elapsedTime, stageDurationTime, targetDataComponents);
-        BetterLookAtFarmingMapper.handleFarmingStages(
-            currentGrowthProgressIndex, stageDurationTime, elapsedTime,
-            currentFarmingStages, targetDataComponents);
-        BetterLookAtFarmingMapper.handleFarmingGrowthStatus(
-            worldChunk, worldTimeResource, targetBlockPosition, farmingData, targetDataComponents);
-        BetterLookAtFarmingMapper.handleFarmingCurrentStageInfo(
-            currentGrowthProgressIndex + 1, currentFarmingStages.length - 1, elapsedTime,
-            stageDurationTime, targetDataComponents);
+        BetterLookAtFarmingMapper.handleFarmingStages(blockContext, elapsedTime, stageDurationTime, targetDataComponents);
+        BetterLookAtFarmingMapper.handleFarmingGrowthStatus(blockContext, targetDataComponents);
+        BetterLookAtFarmingMapper.handleFarmingCurrentStageInfo(blockContext, elapsedTime, stageDurationTime, targetDataComponents);
     }
 
-    private static void handleConsumable(Item item, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
-        if (item == null) {
-            return;
+    private static void handleConsumable(
+        @Nonnull BetterLookAtBlockContext blockContext,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
+        if (blockContext.item != null) {
+            targetDataComponents.add(new BetterLookAtConsumableComponent(blockContext.item.isConsumable()));
         }
-
-        targetDataComponents.add(new BetterLookAtConsumableComponent(item.isConsumable()));
     }
 
-    private static void handleRecommendedTools(@Nonnull BlockType blockType, @Nonnull List<IBetterLookAtComponent> targetDataComponents) {
+    private static void handleRecommendedTools(
+        @Nonnull BetterLookAtBlockContext blockContext,
+        @Nonnull List<IBetterLookAtComponent> targetDataComponents
+    ) {
         var recommendedTools = BetterLookAtLoader.Item
-            .getRecommendedTools(blockType)
+            .getRecommendedTools(blockContext.blockType)
             .stream().map(ItemStack::new)
             .toList();
 
@@ -305,113 +215,113 @@ public class BetterLookAtBlockMapper {
     }
 
     private static void handleProcessingBenchState(
-        @SuppressWarnings("removal") BlockState targetBlockState,
+        @Nonnull BetterLookAtBlockContext blockContext,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        if (targetBlockState instanceof ProcessingBenchState processingBenchState) {
-            var recipe = processingBenchState.getRecipe();
-            var inputProgress = processingBenchState.getInputProgress();
-            var maxInputProgress = recipe != null ? recipe.getTimeSeconds() : 0.0;
-
-            var bench = processingBenchState.getBench();
-
-            if (bench == null) {
-                return;
-            }
-
-            var benchTierLevel = bench.getTierLevel(processingBenchState.getTierLevel());
-            var craftingTimeReductionModifier = benchTierLevel != null ? benchTierLevel.getCraftingTimeReductionModifier() : 0.0;
-
-            var realMaxInputProgress = (float) (maxInputProgress * (1.0F - craftingTimeReductionModifier));
-
-            if (realMaxInputProgress < inputProgress || realMaxInputProgress == 0) {
-                return;
-            }
-
-            targetDataComponents.add(new BetterLookAtProcessingBenchStateComponent(inputProgress, realMaxInputProgress));
+        if (blockContext.bench == null) {
+            return;
         }
+
+        var recipe = blockContext.bench.processingState().getRecipe();
+        var inputProgress = blockContext.bench.processingState().getInputProgress();
+        var maxInputProgress = recipe != null ? recipe.getTimeSeconds() : 0.0;
+
+        var bench = blockContext.bench.processingState().getBench();
+
+        if (bench == null) {
+            return;
+        }
+
+        var benchTierLevel = bench.getTierLevel(blockContext.bench.processingState().getTierLevel());
+        var craftingTimeReductionModifier = benchTierLevel != null ? benchTierLevel.getCraftingTimeReductionModifier() : 0.0;
+
+        var realMaxInputProgress = (float) (maxInputProgress * (1.0F - craftingTimeReductionModifier));
+
+        if (realMaxInputProgress < inputProgress || realMaxInputProgress == 0) {
+            return;
+        }
+
+        targetDataComponents.add(new BetterLookAtProcessingBenchStateComponent(inputProgress, realMaxInputProgress));
     }
 
     private static void handleBenchTier(
-        @SuppressWarnings("removal") BlockState targetBlockState,
+        @Nonnull BetterLookAtBlockContext blockContext,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        if (targetBlockState instanceof BenchState benchState) {
-            targetDataComponents.add(new BetterLookAtBenchTierComponent(benchState.getTierLevel()));
+        if (blockContext.bench != null) {
+            targetDataComponents.add(new BetterLookAtBenchTierComponent(blockContext.bench.state().getTierLevel()));
         }
     }
 
     private static void handleBenchContainers(
-        @SuppressWarnings("removal") BlockState targetBlockState,
+        @Nonnull BetterLookAtBlockContext blockContext,
         @Nonnull List<IBetterLookAtComponent> targetDataComponents
     ) {
-        if (!BetterLookAt.CONFIG.get().getShowBench()) {
+        if (blockContext.bench == null || !BetterLookAt.CONFIG.get().getShowBench()) {
             return;
         }
 
-        if (targetBlockState instanceof ProcessingBenchState processingBenchState) {
-            var FUEL_INDEX = 0;
-            var INPUTS_INDEX = 1;
-            var OUTPUTS_INDEX = 2;
+        var FUEL_INDEX = 0;
+        var INPUTS_INDEX = 1;
+        var OUTPUTS_INDEX = 2;
 
-            var containers = processingBenchState.getItemContainer();
+        var containers = blockContext.bench.processingState().getItemContainer();
 
-            if (containers == null) {
-                return;
-            }
+        if (containers == null) {
+            return;
+        }
 
-            var fuelsContainer = containers.getContainer(FUEL_INDEX);
+        var fuelsContainer = containers.getContainer(FUEL_INDEX);
 
-            if (fuelsContainer != null) {
-                var fuels = new ArrayList<ItemStack>();
+        if (fuelsContainer != null) {
+            var fuels = new ArrayList<ItemStack>();
 
-                for (short index = 0; index < fuelsContainer.getCapacity(); index++) {
-                    var fuel = fuelsContainer.getItemStack(index);
+            for (short index = 0; index < fuelsContainer.getCapacity(); index++) {
+                var fuel = fuelsContainer.getItemStack(index);
 
-                    if (fuel != null) {
-                        fuels.add(BetterLookAtItemStackUtils.shallowClone(fuel));
-                    }
-                }
-
-                if (!fuels.isEmpty()) {
-                    targetDataComponents.add(new BetterLookAtBenchFuelsComponent(fuels));
+                if (fuel != null) {
+                    fuels.add(BetterLookAtItemStackUtils.shallowClone(fuel));
                 }
             }
 
-            var inputsContainer = containers.getContainer(INPUTS_INDEX);
+            if (!fuels.isEmpty()) {
+                targetDataComponents.add(new BetterLookAtBenchFuelsComponent(fuels));
+            }
+        }
 
-            if (inputsContainer != null) {
-                var inputs = new ArrayList<ItemStack>();
+        var inputsContainer = containers.getContainer(INPUTS_INDEX);
 
-                for (short index = 0; index < inputsContainer.getCapacity(); index++) {
-                    var input = inputsContainer.getItemStack(index);
+        if (inputsContainer != null) {
+            var inputs = new ArrayList<ItemStack>();
 
-                    if (input != null) {
-                        inputs.add(BetterLookAtItemStackUtils.shallowClone(input));
-                    }
-                }
+            for (short index = 0; index < inputsContainer.getCapacity(); index++) {
+                var input = inputsContainer.getItemStack(index);
 
-                if (!inputs.isEmpty()) {
-                    targetDataComponents.add(new BetterLookAtBenchInputsComponent(inputs));
+                if (input != null) {
+                    inputs.add(BetterLookAtItemStackUtils.shallowClone(input));
                 }
             }
 
-            var outputsContainer = containers.getContainer(OUTPUTS_INDEX);
+            if (!inputs.isEmpty()) {
+                targetDataComponents.add(new BetterLookAtBenchInputsComponent(inputs));
+            }
+        }
 
-            if (outputsContainer != null) {
-                var outputs = new ArrayList<ItemStack>();
+        var outputsContainer = containers.getContainer(OUTPUTS_INDEX);
 
-                for (short index = 0; index < outputsContainer.getCapacity(); index++) {
-                    var output = outputsContainer.getItemStack(index);
+        if (outputsContainer != null) {
+            var outputs = new ArrayList<ItemStack>();
 
-                    if (output != null) {
-                        outputs.add(BetterLookAtItemStackUtils.shallowClone(output));
-                    }
+            for (short index = 0; index < outputsContainer.getCapacity(); index++) {
+                var output = outputsContainer.getItemStack(index);
+
+                if (output != null) {
+                    outputs.add(BetterLookAtItemStackUtils.shallowClone(output));
                 }
+            }
 
-                if (!outputs.isEmpty()) {
-                    targetDataComponents.add(new BetterLookAtBenchOutputsComponent(outputs));
-                }
+            if (!outputs.isEmpty()) {
+                targetDataComponents.add(new BetterLookAtBenchOutputsComponent(outputs));
             }
         }
     }
